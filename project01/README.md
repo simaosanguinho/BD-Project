@@ -1,6 +1,5 @@
-# BD-Project
+
 # Entrega 1
-## 2022/2023
 
 ## Introdução
 <p = align="justify">
