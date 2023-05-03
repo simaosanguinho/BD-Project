@@ -54,20 +54,28 @@ associar também a um departamento.
 </p>
 
 ## Trabalho a desenvolver
-<p = align="justify">
+
 1. Desenhe um diagrama de modelo de Entidade-Associação para o domínio de problemas
 apresentado na secção anterior.
+
 2. Identifique as situações inconsistentes no domínio do problema, mas que são permitidas no
 modelo de Entidade-Associação apresentadas, e defina um conjunto de Restrições de
 Integridade que completam o modelo proposto de forma a restringir situações inválidas.
-Aspectos importantes
+
+
+## Aspectos importantes
+<p = align="justify">
 Tenha em mente os seguintes aspetos enquanto desenvolve o seu trabalho:
-● O modelo de Entidade-Associação deve ser expresso na notação lecionada nas aulas;
-● As Restrições de Integridade ao modelo Entidade-Associação devem ser escritos como
+</p>
+<p = align="justify">
+* O modelo de Entidade-Associação deve ser expresso na notação lecionada nas aulas;
+* As Restrições de Integridade ao modelo Entidade-Associação devem ser escritos como
 afirmações (de obrigatoriedade ou de interdição) expressas em termos de conceitos no modelo
 entidade-associação, ou seja, em termos de atributos, entidades e relações entre eles;
-● A simplicidade e coerência do modelo serão avaliadas;
-● A solução pode ser apresentada em Português ou em Inglês.
+* A simplicidade e coerência do modelo serão avaliadas;
+* A solução pode ser apresentada em Português ou em Inglês.
+</p>
+<p = align="justify">
 NOTE: O diagrama deve ser desenhado numa ferramenta de diagramagem. Consulte as sugestões que se
 encontram no slides da cadeira.
 </p>
