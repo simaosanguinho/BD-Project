@@ -51,7 +51,7 @@ CREATE TABLE pay (
 
 CREATE TABLE Employee (
   ssn VARCHAR(11) PRIMARY KEY,
-  TIN VARCHAR(9) UNIQUE,
+  TIN NUMERIC(9, 0) UNIQUE,
   bdate DATE,
   name VARCHAR
 );
@@ -70,8 +70,8 @@ CREATE TABLE Department (
 
 CREATE TABLE Workplace (
   address VARCHAR PRIMARY KEY,
-  latitude NUMERIC(2,6),
-  longitude NUMERIC(3,6),
+  latitude NUMERIC(6, 4),
+  longitude NUMERIC(7, 4),
   UNIQUE(latitude, longitude)
 );
 
@@ -99,12 +99,13 @@ CREATE TABLE Product (
   sku VARCHAR PRIMARY KEY,
   name VARCHAR,
   description VARCHAR,
-  price INT 
+  price INT     -- in cents
 );
+
 
 CREATE TABLE EAN_Product (
   sku VARCHAR PRIMARY KEY,
-  ean INT,
+  ean NUMERIC(13, 0),
   FOREIGN KEY (sku) REFERENCES Product(sku)
 );
 
@@ -114,7 +115,7 @@ CREATE TABLE Supplier (
   address VARCHAR
 );
 
-CREATE TABLE Contains (
+CREATE TABLE contains_ (
   order_no INT,
   sku VARCHAR ,
   quantity INT CHECK (quantity > 0),
@@ -125,7 +126,7 @@ CREATE TABLE Contains (
 
 CREATE TABLE Supply_Contract (
   TIN NUMERIC(9, 0),
-  sku VARCHAR NOT NULL,
+  sku VARCHAR,
   date DATE,
   PRIMARY KEY (TIN, sku),
   FOREIGN KEY (TIN) REFERENCES Supplier(TIN),
