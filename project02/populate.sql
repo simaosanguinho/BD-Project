@@ -77,7 +77,7 @@ VALUES
 (102, '1002B', 1),
 (103, '1003C', 1);
 
-INSERT INTO Supply_Contract (TIN, sku, date)
+INSERT INTO supply_contract (TIN, sku, date)
 VALUES
 (983747222, '1001A', '2022-05-01'),
 (124455551, '1002B', '2022-05-02'),
