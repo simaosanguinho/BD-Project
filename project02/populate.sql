@@ -39,7 +39,7 @@ INSERT INTO Workplace
 VALUES
 ('Rua 25 de Abril, 15', 37.1234, -122.5678),
 ('Avenida das Pombas, 2', 38.9876, -121.3456);
--- ATENCAO AO FORMATO DA LATITUDE E LONGITUDE 
+
 
 INSERT INTO works 
 VALUES
