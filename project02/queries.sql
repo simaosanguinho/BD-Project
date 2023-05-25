@@ -1,13 +1,12 @@
--- Query 01 - name clients who have placed orders for products with price > 5000    
+--Pergunta 1
 SELECT name 
 FROM Customer
     NATURAL JOIN Order_
     NATURAL JOIN contains_
-    NATURAL JOIN (SELECT sku FROM Product WHERE price > 5000) AS P
+    NATURAL JOIN (SELECT sku FROM Product WHERE price > 5000) 
+                        AS product_above_50
 WHERE 
     EXTRACT(YEAR FROM date) = 2023;
-
-
 
 
 -- Pergunta 2
@@ -28,31 +27,27 @@ FROM Employee
 WHERE EXTRACT(YEAR FROM date) = 2023 
         AND EXTRACT(MONTH FROM date) = 1;
 
--- Pergunta 3
 
+-- Pergunta 3
 WITH qty_sold_by_product AS (
     SELECT sku, SUM(quantity) AS total_qty
     FROM (contains_ NATURAL JOIN Sale)
     GROUP BY sku
 )
 SELECT name AS most_sold
-FROM Product
-    NATURAL JOIN (
-        SELECT sku
-        FROM qty_sold_by_product
+FROM Product NATURAL JOIN
+    (SELECT *
+    FROM qty_sold_by_product
         WHERE total_qty = (
-          SELECT MAX(total_qty)
-          FROM qty_sold_by_product
-        )) AS most_sold_product;
+        SELECT MAX(total_qty)
+        FROM qty_sold_by_product
+    )) AS most_sold_products;
 
 
 -- Pergunta 4
-  
 SELECT order_no AS sale, SUM(price * quantity) AS total_value
 FROM Sale
     INNER JOIN contains_ c USING (order_no)
     INNER JOIN Product USING (sku)
     GROUP BY order_no;
-
-
         

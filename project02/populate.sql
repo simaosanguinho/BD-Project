@@ -6,19 +6,22 @@ VALUES
 
 INSERT INTO Order_
 VALUES
-(101, '2023-05-01', 13),
-(102, '2023-05-02', 2),
-(103, '2023-05-03', 35);
+(101, '2023-01-01', 13),
+(102, '2023-01-02', 2),
+(103, '2023-05-03', 35),
+(104, '2023-05-03', 2);
 
 INSERT INTO Sale
 VALUES
 (101),
-(102);
+(102),
+(104);
 
 INSERT INTO pay 
 VALUES
 (101, 13),
-(102, 2);
+(102, 2),
+(104, 2);
 
 INSERT INTO Employee
 VALUES
@@ -28,7 +31,8 @@ VALUES
 INSERT INTO process
 VALUES
 ('12345678910', 101),
-('10987654321', 102);
+('10987654321', 102),
+('10987654321', 104);
 
 INSERT INTO Department
 VALUES
@@ -74,8 +78,10 @@ VALUES
 INSERT INTO contains_
 VALUES
 (101, '1001A', 2),
-(102, '1002B', 1),
-(103, '1003C', 1);
+(101, '1002B', 6),
+(102, '1001A', 2),
+(103, '1003C', 1),
+(104, '1003C', 6);
 
 INSERT INTO supply_contract
 VALUES
