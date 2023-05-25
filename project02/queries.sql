@@ -28,6 +28,22 @@ FROM Employee
 WHERE EXTRACT(YEAR FROM date) = 2023 
         AND EXTRACT(MONTH FROM date) = 1;
 
+-- Pergunta 3
+
+WITH qty_sold_by_product AS (
+    SELECT sku, SUM(quantity) AS total_qty
+    FROM (contains_ NATURAL JOIN Sale)
+    GROUP BY sku
+)
+SELECT name AS most_sold
+FROM Product
+    NATURAL JOIN (
+        SELECT sku
+        FROM qty_sold_by_product
+        WHERE total_qty = (
+          SELECT MAX(total_qty)
+          FROM qty_sold_by_product
+        )) AS most_sold_product;
 
 
 -- Pergunta 4
