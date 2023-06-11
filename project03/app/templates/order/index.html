@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Order Management{% endblock %}</h1>
+  <button><a href="{{ url_for('order_add')}}">Add Order</a></button>
+{% endblock %}
+
+{% block content %}
+  {% for order in orders %}
+    <article class="post">
+      <header>
+        <div>
+          <h1>{{ order['order_no'] }}</h1>
+          <div class="about">Cust No: {{ order['cust_no'] }}</div>
+          <div class="about">Date: {{ order['date'] }}</div>
+
+        </div>
+      
+      </header>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}

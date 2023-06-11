@@ -56,11 +56,91 @@ def customer():
     return render_template("customer/index.html")
 
 
+#----------------------------------------
+#               Order
+#----------------------------------------
+
+
 @app.route("/order", methods=("GET",))
 # @app.route("/accounts", methods=("GET",))
-def order():
+def order_index():
     """Order management page."""
-    return render_template("order/index.html")
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            cur.execute(
+                """
+               SELECT order_no, cust_no, date
+               FROM orders
+               ORDER BY date DESC;
+               """,
+                {},
+                # prepare=True,
+            )
+            orders = cur.fetchmany(10)
+            log.debug(f"Found {cur.rowcount} rows.")
+    
+    
+    return render_template("order/index.html", orders = orders)
+
+@app.route("/order/add", methods=("GET", "POST"))
+def order_add():
+    """Add a new order."""
+    if request.method == "POST":
+        order_no = request.form["order_no"]
+        cust_no = request.form["cust_no"]
+        date = request.form["date"]
+    
+        error = None
+
+        # VERIFICAR SE EXISTEM???
+        if not order_no:
+            error = "Order Number is required."
+
+        if not cust_no:
+            error = "Customer Number is required."
+
+        if not date:
+            error = "Date is required."
+
+
+        if error is not None:
+            flash(error)
+        else:
+            with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                
+                    
+                    cur.execute(
+                        """
+                       INSERT INTO orders (order_no, cust_no, date)
+                       VALUES (%(order_no)s, %(cust_no)s, %(date)s);
+                       """,
+                        {"order_no": order_no, "cust_no": cust_no, "date": date},
+                    )
+                    
+                    
+                conn.commit()
+            return redirect(url_for("order_index"))
+
+    # get products
+    with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                    
+                    products = cur.execute(
+                        """
+                       SELECT name, description, price, sku
+                       FROM product
+                       ORDER BY price DESC;
+                       """,
+                        {},
+                    ).fetchall()
+    
+    return render_template("order/add.html", products = products)
+
+
+#----------------------------------------
+#               Product
+#----------------------------------------
 
 
 @app.route("/product", methods=("GET", "POST"))
@@ -189,14 +269,37 @@ def product_delete(sku):
 
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
-            output = cur.execute(
+            
+            # delete all suppliers that supply this product
+            suppliers = cur.execute(
+             """ 
+              SELECT tin FROM supplier
+              WHERE sku = %(sku)s;
+             """,
+             {"sku": sku},
+            ).fetchall()
+            
+            for supplier in suppliers:
+                supplier_delete(supplier.tin)
+            
+            # delete contains entries that contain this product
+            cur.execute(
+                """
+                DELETE FROM contains
+                WHERE sku = %(sku)s;
+                """,
+                {"sku": sku},
+            )
+            
+            # delete product
+            cur.execute(
                 """
                 DELETE FROM product
                 WHERE sku = %(sku)s;
                 """,
                 {"sku": sku},
             )
-            log.debug(output)
+            
         conn.commit()
     return redirect(url_for("product_index"))
 
@@ -397,3 +500,5 @@ def ping():
 
 if __name__ == "__main__":
     app.run()
+
+

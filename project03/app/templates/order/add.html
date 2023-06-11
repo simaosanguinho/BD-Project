@@ -1,0 +1,40 @@
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}New Order {% endblock %}</h1>
+
+{% endblock %} {% block content %}
+<form action="/order/add" method="post">
+  <div>
+    <label for="sku">Order Number</label>
+    <input type="text" name="order_no" id="order_no" />
+  </div>
+  <div>
+    <label for="name">Customer Number</label>
+    <input type="text" name="cust_no" id="cust_no" />
+  </div>
+  <div>
+    <label for="price">Date</label>
+    <input type="text" name="date" id="date" />
+  </div>
+
+
+  {% for product in products %}
+    <article class="post">
+      <header>
+        <div>
+          <h1>{{ product['name'] }}</h1>
+          <div class="about">description: {{ product['description'] }}</div>
+        </div>
+        <input type="checkbox" id="myCheckbox" name="myCheckbox" value="checkboxValue">
+        
+      
+      </header>
+      <p class="body">€ {{ product['price'] }}</p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+
+  <input type="submit" value="Save" />
+  {% endblock %}
+
