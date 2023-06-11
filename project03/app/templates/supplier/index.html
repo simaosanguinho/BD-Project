@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Supplier Management{% endblock %}</h1>
+  <button><a href="{{ url_for('supplier_add')}}">Add Supplier</a></button>
+{% endblock %}
+
+{% block content %}
+  {% for supplier in suppliers %}
+    <article class="post">
+      <header>
+        <div>
+          <h1>{{ supplier['name'] }}</h1>
+          <div class="about">TIN: {{ supplier['tin'] }}</div>
+          <div class="about">address: {{ supplier['address'] }}</div>
+          <div class="about">SKU: {{ supplier['sku'] }}</div>
+          <div class="about">date: {{ supplier['date'] }}</div>
+
+        </div>
+    
+        <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('supplier_delete', tin=supplier['tin']) }}">🗑️ Delete</a>
+      
+      </header>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}

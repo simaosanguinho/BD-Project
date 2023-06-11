@@ -2,6 +2,7 @@
 
 {% block header %}
   <h1>{% block title %}Product Management{% endblock %}</h1>
+  <button><a href="{{ url_for('product_add')}}">Add Product</a></button>
 {% endblock %}
 
 {% block content %}
@@ -12,7 +13,9 @@
           <h1>{{ product['name'] }}</h1>
           <div class="about">description: {{ product['description'] }}</div>
         </div>
-        <a class="action" href="{{ url_for('customer', account_number=product['account_number']) }}">Edit</a>
+        <a class="action" href="{{ url_for('product_update', sku=product['sku']) }}">✏️ Edit</a>
+        <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('product_delete', sku=product['sku']) }}">🗑️ Delete</a>
+      
       </header>
       <p class="body">€ {{ product['price'] }}</p>
     </article>
