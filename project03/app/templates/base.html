@@ -1,0 +1,22 @@
+<!doctype html>
+<title>{% block title %}{% endblock %} - JSRShop</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}">
+<nav>
+  <h1><a href="/">JSRShop</a></h1>
+  <ul>
+    <li><a href="{{ url_for('customer') }}">Customers</a>
+      <li><a href="{{ url_for('order') }}">Orders</a>
+        <li><a href="{{ url_for('product') }}">Products</a>
+          <li><a href="{{ url_for('supplier') }}">Suppliers</a>
+            <li><a href="{{ url_for('payment') }}">Payments</a>
+    </ul>
+  </nav>
+  <section class="content">
+    <header>
+      {% block header %}{% endblock %}
+    </header>
+    {% for message in get_flashed_messages() %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </section>
