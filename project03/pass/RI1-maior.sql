@@ -5,5 +5,5 @@ VALUES
 COMMIT;
 
 BEGIN;
-DELETE FROM employee WHERE ssn='5001';
+DELETE FROM employee WHERE ssn = '5001';
 COMMIT;
