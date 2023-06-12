@@ -85,11 +85,36 @@ def order_index():
 @app.route("/order/add", methods=("GET", "POST"))
 def order_add():
     """Add a new order."""
+       
+    products_to_add = []
+    # get products
+    with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                    
+                    products = cur.execute(
+                        """
+                       SELECT name, description, price, sku
+                       FROM product
+                       ORDER BY price DESC;
+                       """,
+                        {},
+                    ).fetchall()
+    
+    
     if request.method == "POST":
         order_no = request.form["order_no"]
         cust_no = request.form["cust_no"]
         date = request.form["date"]
-    
+        product_qty = request.form["qty"]
+        log.debug("\n\n\n\n\n")
+        log.debug(product_qty)
+        
+        i=0
+        for product in products:
+            if(int(product_qty[i]) > 0):
+                products_to_add.append((product.sku, int(product_qty[i])))
+            i = i + 1
+
         error = None
 
         # VERIFICAR SE EXISTEM???
@@ -122,18 +147,7 @@ def order_add():
                 conn.commit()
             return redirect(url_for("order_index"))
 
-    # get products
-    with pool.connection() as conn:
-                with conn.cursor(row_factory=namedtuple_row) as cur:
-                    
-                    products = cur.execute(
-                        """
-                       SELECT name, description, price, sku
-                       FROM product
-                       ORDER BY price DESC;
-                       """,
-                        {},
-                    ).fetchall()
+    
     
     return render_template("order/add.html", products = products)
 
