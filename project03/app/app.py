@@ -11,6 +11,9 @@ from flask import request
 from flask import url_for
 from psycopg.rows import namedtuple_row
 from psycopg_pool import ConnectionPool
+from math import ceil
+
+ITEMS = 1
 
 # postgres://{user}:{password}@{hostname}:{port}/{database-name}
 DATABASE_URL = "postgres://db:db@postgres/db"
@@ -57,20 +60,37 @@ def index():
 @app.route("/customer", methods=("GET",))
 # @app.route("/accounts", methods=("GET",))
 def customer_index():
+    page = request.args.get("page", type=int, default=1)
     """Customer management page."""
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
+            nr_items = (
+                cur.execute(
+                    """
+                SELECT COUNT(*) as count
+                FROM customer;
+            """
+                )
+                .fetchone()
+                .count
+            )
+            log.debug(f"nr_items = {nr_items}")
+
+            nr_pages = ceil(nr_items / ITEMS)
+            log.debug(f"nr_pages = {nr_pages}")
             cur.execute(
                 """
             SELECT cust_no, name, email, address, phone
             FROM customer
-            ORDER BY name DESC;
+            ORDER BY name DESC
+            OFFSET %(offset)s;
             """,
-                {},
-                # prepare=True,
+                {"offset": (page - 1) * ITEMS},
+                prepare=True,
             )
-            customers = cur.fetchmany(10)
+            customers = cur.fetchmany(ITEMS)
             log.debug(f"Found {cur.rowcount} rows.")
+        # asset(ITEMS == )
 
     return render_template("customer/index.html", customers=customers)
 
@@ -251,130 +271,7 @@ def order_index():
 @app.route("/order/add", methods=("GET", "POST"))
 def order_add():
     """Add a new order."""
-
-    products_to_add = []
-    # get products
-    with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur:
-            products = cur.execute(
-                """
-                       SELECT name, description, price, sku
-                       FROM product
-                       ORDER BY price DESC;
-                       """,
-                {},
-            ).fetchall()
-
-    if request.method == "POST":
-        order_no = request.form["order_no"]
-        cust_no = request.form["cust_no"]
-        date = request.form["date"]
-        product_qty = []
-        for product in products:
-            product_quantity = request.form[product.sku]
-            if not product_quantity:
-                product_quantity = 0
-            product_qty.append(product_quantity)
-        log.debug("\n\n\n\n\n")
-        log.debug(product_qty)
-
-        i = 0
-        for product in products:
-            if int(product_qty[i]) > 0:
-                products_to_add.append((product.sku, int(product_qty[i])))
-            i = i + 1
-
-        error = None
-
-        # VERIFICAR SE EXISTEM???
-        if not order_no:
-            error = "Order Number is required."
-
-        if not cust_no:
-            error = "Customer Number is required."
-
-        if not date:
-            error = "Date is required."
-
-        if not products_to_add:
-            error = "At least 1 Product is required."
-
-        if error is not None:
-            flash(error)
-        else:
-            with pool.connection() as conn:
-                with conn.cursor(row_factory=namedtuple_row) as cur:
-                    cur.execute(
-                        """
-                       INSERT INTO orders (order_no, cust_no, date)
-                       VALUES (%(order_no)s, %(cust_no)s, %(date)s);
-                       """,
-                        {"order_no": order_no, "cust_no": cust_no, "date": date},
-                    )
-
-                    for product in products_to_add:
-                        cur.execute(
-                            """
-                           INSERT INTO contains (order_no, sku, qty)
-                           VALUES (%(order_no)s, %(sku)s, %(quantity)s);
-                           """,
-                            {
-                                "order_no": order_no,
-                                "sku": product[0],
-                                "quantity": product[1],
-                            },
-                        )
-
-                conn.commit()
-            return redirect(url_for("order_index"))
-
-    return render_template("order/add.html", products=products)
-
-
-@app.route("/order/pay/<order_no>", methods=("GET",))
-def order_pay(order_no):
     try:
-        """Mark an order as paid."""
-
-        with pool.connection() as conn:
-            with conn.cursor(row_factory=namedtuple_row) as cur:
-                order = cur.execute(
-                    """
-                SELECT cust_no
-                FROM orders
-                WHERE order_no = %(order_no)s;
-                """,
-                    {"order_no": order_no},
-                ).fetchone()
-
-                log.debug(order)
-                log.debug(type(order))
-
-                if not order:  # fetchone() returns None if nothing is returned
-                    raise ValueError("TODO FIXME")  # FIXME
-                cust_no = order.cust_no
-                #'Pay' order.
-                cur.execute(
-                    """
-                    INSERT INTO pay (order_no, cust_no)
-                    VALUES (%(order_no)s, %(cust_no)s);
-                    """,
-                    {"order_no": order_no, "cust_no": cust_no},
-                )
-            conn.commit()
-        flash(f"Order '{order_no}' marked as paid.")
-        return redirect(url_for("order_index"))
-
-    except Exception as e:
-        flash(f"An error ocurred: {e}")
-        return redirect(url_for("order_index"))
-
-
-@app.route("/order/add", methods=("GET", "POST"))
-def order_add():
-    try:
-        """Add a new order."""
-
         products_to_add = []
         # get products
         with pool.connection() as conn:
@@ -419,6 +316,9 @@ def order_add():
             if not date:
                 error = "Date is required."
 
+            if not products_to_add:
+                error = "At least 1 Product is required."
+
             if error is not None:
                 flash(error)
             else:
@@ -432,10 +332,62 @@ def order_add():
                             {"order_no": order_no, "cust_no": cust_no, "date": date},
                         )
 
+                        for product in products_to_add:
+                            cur.execute(
+                                """
+                            INSERT INTO contains (order_no, sku, qty)
+                            VALUES (%(order_no)s, %(sku)s, %(quantity)s);
+                            """,
+                                {
+                                    "order_no": order_no,
+                                    "sku": product[0],
+                                    "quantity": product[1],
+                                },
+                            )
+
                     conn.commit()
                 return redirect(url_for("order_index"))
 
         return render_template("order/add.html", products=products)
+
+    except Exception as e:
+        flash(f"An error ocurred: {e}")
+        return redirect(url_for("order_index"))
+
+
+@app.route("/order/pay/<order_no>", methods=("GET",))
+def order_pay(order_no):
+    try:
+        """Mark an order as paid."""
+
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:
+                order = cur.execute(
+                    """
+                SELECT cust_no
+                FROM orders
+                WHERE order_no = %(order_no)s;
+                """,
+                    {"order_no": order_no},
+                ).fetchone()
+
+                log.debug(order)
+                log.debug(type(order))
+
+                if not order:  # fetchone() returns None if nothing is returned
+                    raise ValueError("TODO FIXME")  # FIXME
+                cust_no = order.cust_no
+                #'Pay' order.
+                cur.execute(
+                    """
+                    INSERT INTO pay (order_no, cust_no)
+                    VALUES (%(order_no)s, %(cust_no)s);
+                    """,
+                    {"order_no": order_no, "cust_no": cust_no},
+                )
+            conn.commit()
+        flash(f"Order '{order_no}' marked as paid.")
+        return redirect(url_for("order_index"))
 
     except Exception as e:
         flash(f"An error ocurred: {e}")
