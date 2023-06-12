@@ -248,6 +248,89 @@ def order_index():
         return render_template("order/index.html", orders=[])
 
 
+@app.route("/order/add", methods=("GET", "POST"))
+def order_add():
+    """Add a new order."""
+
+    products_to_add = []
+    # get products
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=namedtuple_row) as cur:
+            products = cur.execute(
+                """
+                       SELECT name, description, price, sku
+                       FROM product
+                       ORDER BY price DESC;
+                       """,
+                {},
+            ).fetchall()
+
+    if request.method == "POST":
+        order_no = request.form["order_no"]
+        cust_no = request.form["cust_no"]
+        date = request.form["date"]
+        product_qty = []
+        for product in products:
+            product_quantity = request.form[product.sku]
+            if not product_quantity:
+                product_quantity = 0
+            product_qty.append(product_quantity)
+        log.debug("\n\n\n\n\n")
+        log.debug(product_qty)
+
+        i = 0
+        for product in products:
+            if int(product_qty[i]) > 0:
+                products_to_add.append((product.sku, int(product_qty[i])))
+            i = i + 1
+
+        error = None
+
+        # VERIFICAR SE EXISTEM???
+        if not order_no:
+            error = "Order Number is required."
+
+        if not cust_no:
+            error = "Customer Number is required."
+
+        if not date:
+            error = "Date is required."
+
+        if not products_to_add:
+            error = "At least 1 Product is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            with pool.connection() as conn:
+                with conn.cursor(row_factory=namedtuple_row) as cur:
+                    cur.execute(
+                        """
+                       INSERT INTO orders (order_no, cust_no, date)
+                       VALUES (%(order_no)s, %(cust_no)s, %(date)s);
+                       """,
+                        {"order_no": order_no, "cust_no": cust_no, "date": date},
+                    )
+
+                    for product in products_to_add:
+                        cur.execute(
+                            """
+                           INSERT INTO contains (order_no, sku, qty)
+                           VALUES (%(order_no)s, %(sku)s, %(quantity)s);
+                           """,
+                            {
+                                "order_no": order_no,
+                                "sku": product[0],
+                                "quantity": product[1],
+                            },
+                        )
+
+                conn.commit()
+            return redirect(url_for("order_index"))
+
+    return render_template("order/add.html", products=products)
+
+
 @app.route("/order/pay/<order_no>", methods=("GET",))
 def order_pay(order_no):
     try:
