@@ -1,20 +1,27 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Customers{% endblock %}</h1>
+  <h1>{% block title %}Customer Management{% endblock %}</h1>
+  <button><a href="{{ url_for('customer_add')}}">Add Customer</a></button>
 {% endblock %}
 
 {% block content %}
-  {% for account in accounts %}
+  {% for customer in customers %}
     <article class="post">
       <header>
         <div>
-          <h1>{{ account['account_number'] }}</h1>
-          <div class="about">in {{ account['branch_name'] }}</div>
+          <h1>{{ customer['name'] }}</h1>
+          <div class="about">number: {{ customer['cust_no'] }}</div>
+          <div class="about">address: {{ customer['address'] }}</div>
+          <div class="about">email: {{ customer['email'] }}</div>
+          <div class="about">phone: {{ customer['phone'] }}</div>
+
         </div>
-        <a class="action" href="{{ url_for('account_update', account_number=account['account_number']) }}">Edit</a>
+        <a class="action" href="{{ url_for('customer_update', cust_no=customer['cust_no']) }}">✏️ Edit</a>
+
+        <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('customer_delete', cust_no=customer['cust_no']) }}">🗑️ Delete</a>
+      
       </header>
-      <p class="body">€ {{ account['balance'] }}</p>
     </article>
     {% if not loop.last %}
       <hr>
