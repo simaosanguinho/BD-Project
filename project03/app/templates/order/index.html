@@ -13,9 +13,18 @@
           <h1>{{ order['order_no'] }}</h1>
           <div class="about">Cust No: {{ order['cust_no'] }}</div>
           <div class="about">Date: {{ order['date'] }}</div>
+          <div class="about">Paid: {{ "✅" if order['paid_order_no'] else "❌" }}</div>
+
 
         </div>
-      
+
+        {% if not order['paid_order_no'] %}
+
+        <a class="action" onclick="return confirm('Are you sure you want to mark this order as paid?');" href="{{ url_for('order_pay', order_no=order['order_no']) }}">💵 Mark as paid</a>
+
+        {% endif %}
+
+
       </header>
     </article>
     {% if not loop.last %}
