@@ -1,0 +1,36 @@
+repos:
+# -   repo: https://github.com/charliermarsh/ruff-pre-commit
+#     rev: v0.0.272
+#     hooks:
+#     -   id: ruff
+#         args: [--fix, --exit-non-zero-on-fix]
+-   repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+    -   id: black
+    -   id: black-jupyter
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: check-merge-conflict
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+    -   id: check-yaml
+-   repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
+        args:
+          - --extra-keys
+          - metadata.kernelspec metadata.language_info metadata.vscode
+# -   repo: https://github.com/sqlfluff/sqlfluff
+#     rev: 2.1.1
+#     hooks:
+#       - id: sqlfluff-lint
+#         args:
+#           - --dialect
+#           - postgres
+#       - id: sqlfluff-fix
+#         args:
+#           - --dialect
+#           - postgres
