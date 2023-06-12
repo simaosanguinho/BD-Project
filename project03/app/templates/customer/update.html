@@ -1,0 +1,43 @@
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}Customer {{ customer['cust_no'] }} | Edit{% endblock %}</h1>
+{% endblock %} {% block content %}
+<form method="post">
+  <label for="cust_no">cust_no</label>
+  <input name="""cust_no" id="""cust_no" type="""text" value="{{ request.form['cust_no'] or
+  customer['cust_no'] }}" disabled>
+  <label for="name">Name</label>
+  <input
+    name="name"
+    id="name"
+    type="text"
+    value="{{ request.form['name'] or customer['name'] }}"
+    required
+  />
+  <label for="email">Email</label>
+  <input
+    name="email"
+    id="email"
+    type="text"
+    value="{{ customer['email']}}"
+    required
+  />
+    <label for="phone">phone</label>
+  <input
+    name="phone"
+    id="phone"
+    type="text"
+    value="{{ customer['phone']}}"
+    required
+  />
+    <label for="address">address</label>
+  <input
+    name="address"
+    id="address"
+    type="text"
+    value="{{ customer['address']}}"
+    required
+  />
+  <input type="submit" value="Save" />
+</form>
+<hr />
+{% endblock %}

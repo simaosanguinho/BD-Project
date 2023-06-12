@@ -24,7 +24,7 @@
           <h1>{{ product['name'] }}</h1>
           <div class="about">description: {{ product['description'] }}</div>
         </div>
-        <input type="number" name="qty" min = "0" id="qty"/>
+        <input type="number" name="{{ product['sku']}}" min = "0" id="qty"/>
         <button><a href="">Add</a></button>
         
       
