@@ -1,15 +1,29 @@
 <!doctype html>
 <title>{% block title %}{% endblock %} - Orders"R"Us</title>
+      <!--Import Google Icon Font-->
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}">
-<nav>
-  <h1><a href="/">Orders"R"Us</a></h1>
-  <ul>
-    <li><a href="{{ url_for('customer_index') }}">Customers</a>
-      <li><a href="{{ url_for('order_index') }}">Orders</a>
+
+
+  <nav>
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo left">Orders"R"Us</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="{{ url_for('customer_index') }}">Customers</a>
+        <li><a href="{{ url_for('order_index') }}">Orders</a>
         <li><a href="{{ url_for('product_index') }}">Products</a>
-          <li><a href="{{ url_for('supplier_index') }}">Suppliers</a>
-    </ul>
+        <li><a href="{{ url_for('supplier_index') }}">Suppliers</a>
+      </ul>
+    </div>
   </nav>
+
   <section class="content">
     <header>
       {% block header %}{% endblock %}

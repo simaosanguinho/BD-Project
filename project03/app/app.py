@@ -13,7 +13,7 @@ from psycopg.rows import namedtuple_row
 from psycopg_pool import ConnectionPool
 from math import ceil
 
-ITEMS = 1
+ITEMS = 7
 
 # postgres://{user}:{password}@{hostname}:{port}/{database-name}
 DATABASE_URL = "postgres://db:db@postgres/db"
@@ -43,6 +43,19 @@ dictConfig(
 app = Flask(__name__)
 app.secret_key = b"CHANGE_ME_IN_PRODUCTION"
 log = app.logger
+
+
+def get_pages(cur_page, nr_pages):
+    # Returns a list of pages to display in pagination.
+    if nr_pages <= 10:
+        return range(1, nr_pages + 1)
+    if cur_page <= 5:
+        return range(1, 10 + 1)
+
+    if cur_page in range(nr_pages - 5, nr_pages + 1):
+        return range(nr_pages - 10, nr_pages + 1)
+
+    return range(max(cur_page - 5, 1), min(cur_page + 5, nr_pages + 1))
 
 
 @app.route("/", methods=("GET",))
@@ -77,7 +90,10 @@ def customer_index():
             log.debug(f"nr_items = {nr_items}")
 
             nr_pages = ceil(nr_items / ITEMS)
-            log.debug(f"nr_pages = {nr_pages}")
+            if page < 1:
+                page = 1
+            elif page > nr_pages:
+                page = nr_pages
             cur.execute(
                 """
             SELECT cust_no, name, email, address, phone
@@ -92,7 +108,13 @@ def customer_index():
             log.debug(f"Found {cur.rowcount} rows.")
         # asset(ITEMS == )
 
-    return render_template("customer/index.html", customers=customers)
+    return render_template(
+        "customer/index.html",
+        customers=customers,
+        cur_page=page,
+        nr_pages=nr_pages,
+        pages=get_pages(page, nr_pages),
+    )
 
 
 @app.route("/customer/add", methods=("GET", "POST"))
@@ -245,25 +267,44 @@ def customer_delete(cust_no):
 # @app.route("/accounts", methods=("GET",))
 def order_index():
     try:
+        page = request.args.get("page", type=int, default=1)
         """Order management page."""
         with pool.connection() as conn:
             with conn.cursor(row_factory=namedtuple_row) as cur:
+                nr_items = (
+                    cur.execute(
+                        """
+                    SELECT COUNT(*) as count
+                    FROM orders;
+                """
+                    )
+                    .fetchone()
+                    .count
+                )
+
+                nr_pages = ceil(nr_items / ITEMS)
                 cur.execute(
                     """
                 SELECT o.order_no, o.cust_no, o.date, p.order_no AS paid_order_no
                 FROM orders o
                 LEFT OUTER JOIN pay p ON o.order_no = p.order_no
-                ORDER BY o.date DESC;
+                ORDER BY o.date DESC
+                OFFSET %(offset)s;
                 """,
-                    {},
+                    {"offset": (page - 1) * ITEMS},
                     # prepare=True,
                 )
-                orders = cur.fetchmany(10)
-                log.debug(f"Found {cur.rowcount} rows.")
-                log.debug(orders[0])
+                orders = cur.fetchmany(ITEMS)
 
-        return render_template("order/index.html", orders=orders)
+        return render_template(
+            "order/index.html",
+            orders=orders,
+            cur_page=page,
+            nr_pages=nr_pages,
+            pages=get_pages(page, nr_pages),
+        )
     except Exception as e:
+        raise (e)
         flash(f"An error ocurred: {e}")
         return render_template("order/index.html", orders=[])
 
@@ -402,21 +443,41 @@ def order_pay(order_no):
 @app.route("/product", methods=("GET", "POST"))
 # @app.route("/accounts", methods=("GET",))
 def product_index():
+    # TODO: esqueci me de try-catch aqui
+    page = request.args.get("page", type=int, default=1)
     """Product management page."""
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
+            nr_items = (
+                cur.execute(
+                    """
+                SELECT COUNT(*) as count
+                FROM product;
+            """
+                )
+                .fetchone()
+                .count
+            )
+
+            nr_pages = ceil(nr_items / ITEMS)
             cur.execute(
                 """
                SELECT SKU, name, description, price, ean
                FROM product
-               ORDER BY price DESC;
+               ORDER BY price DESC
+               OFFSET %(offset)s;
                """,
-                {},
+                {"offset": (page - 1) * ITEMS},
                 # prepare=True,
             )
-            products = cur.fetchmany(10)
-            log.debug(f"Found {cur.rowcount} rows.")
-    return render_template("product/index.html", products=products)
+            products = cur.fetchmany(ITEMS)
+        return render_template(
+            "product/index.html",
+            products=products,
+            cur_page=page,
+            nr_pages=nr_pages,
+            pages=get_pages(page, nr_pages),
+        )
 
 
 @app.route("/product/add", methods=("GET", "POST"))
@@ -586,21 +647,41 @@ def product_delete(sku):
 
 @app.route("/supplier", methods=("GET", "POST"))
 def supplier_index():
+    page = request.args.get("page", type=int, default=1)
     """Supplier management page."""
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
+            nr_items = (
+                cur.execute(
+                    """
+                SELECT COUNT(*) as count
+                FROM product;
+            """
+                )
+                .fetchone()
+                .count
+            )
+
+            nr_pages = ceil(nr_items / ITEMS)
             cur.execute(
                 """
                SELECT tin, name, address, sku, date
                FROM supplier
-               ORDER BY name ASC;
+               ORDER BY name ASC
+               OFFSET %(offset)s;
                """,
-                {},
+                {"offset": (page - 1) * ITEMS},
                 # prepare=True,
             )
-            suppliers = cur.fetchmany(10)
-            log.debug(len(suppliers))
-    return render_template("supplier/index.html", suppliers=suppliers)
+            suppliers = cur.fetchmany(ITEMS)
+
+        return render_template(
+            "supplier/index.html",
+            suppliers=suppliers,
+            cur_page=page,
+            nr_pages=nr_pages,
+            pages=get_pages(page, nr_pages),
+        )
 
 
 @app.route("/supplier/add", methods=("GET", "POST"))
