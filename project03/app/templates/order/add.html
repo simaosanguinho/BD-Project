@@ -36,52 +36,63 @@
 
 {% endblock %} {% block content %}
 
-<form class="mx-20" action="/order/add" method="post">
-  <div class="mb-6 w-80">
-    <label class="block mb-2 text-sm font-medium text-gray-900"
-      >Order Number</label
-    >
+<form
+  class="mx-20 max-w-100 flex justify-between"
+  action="/order/add"
+  method="post"
+>
+  <div class="flex-col">
+    <div class="mb-6 w-80">
+      <label class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >Order Number</label
+      >
+      <input
+        id="order_no"
+        name="order_no"
+        type="number"
+        class="bg-slate-400 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
+        required
+      />
+    </div>
+    <div class="mb-6 w-80">
+      <label class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >Customer Number</label
+      >
+      <input
+        id="cust_no"
+        name="cust_no"
+        type="number"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+        required
+      />
+    </div>
+    <div class="mb-6 w-80">
+      <label
+        for="date"
+        class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >Date</label
+      >
+      <input
+        id="date"
+        name="date"
+        type="date"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+        required
+      />
+    </div>
+
     <input
-      id="order_no"
-      name="order_no"
-      type="number"
-      class="bg-slate-400 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
-      required
-    />
-  </div>
-  <div class="mb-6 w-80">
-    <label class="block mb-2 text-sm font-medium text-gray-900"
-      >Customer Number</label
-    >
-    <input
-      id="cust_no"
-      name="cust_no"
-      type="number"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
-      required
-    />
-  </div>
-  <div class="mb-6 w-80">
-    <label for="date" class="block mb-2 text-sm font-medium text-gray-900"
-      >Date</label
-    >
-    <input
-      id="date"
-      name="date"
-      type="date"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full "
-      required
-    />
-  </div>
-  <input
       type="submit"
       class="mr-20 mt-8 h-10 rounded-md bg-slate-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
       value="Save"
     />
+  </div>
+  <div class="flex mr-20">
+  <h2 class="text-2xl ml-auto font-semibold leading-7 text-gray-900">What You Do Want To Add?</h2>
 
-  <div class="mt-20 overflow-y-scroll h-80">
+  <div id="productsdiv" class="mt-20 overflow-y-scroll w-6/12" style="max-height: 50rem !important;">
     {% for product in products %}
-    <li class="flex justify-between gap-x-6 py-5 mx-20">
+    <li class="flex justify-between gap-x-6 py-5 mx-20" style="width: 100rem !important">
       <div class="flex gap-x-4">
         <div class="min-w-0 flex-auto">
           <p class="text-sm font-semibold leading-6 text-gray-900">
@@ -105,9 +116,10 @@
     </li>
     {% if not loop.last %}
     <hr />
-    {% endif %} {% endfor %}
+    {% endif %} {% endfor %} {% endblock %}
+</div>
+
     
-    {% endblock %}
   </div>
   <div
     class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-90rem)]"
@@ -138,3 +150,9 @@
     ></div>
   </div>
 </form>
+
+
+<style>
+
+
+</style>

@@ -243,6 +243,39 @@ def customer_delete(cust_no):
         """Delete a customer."""
         with pool.connection() as conn:
             with conn.cursor(row_factory=namedtuple_row) as cur:
+
+
+            #Get orders to be deleted.
+                cur.execute(
+                    """
+                SELECT o.order_no, o.cust_no
+                FROM orders o
+                WHERE o.cust_no = %(cust_no)s;
+                """,
+                    {"cust_no": cust_no},
+                    # prepare=True,
+                )
+                orders = cur.fetchall()
+
+                full_process_sql = ""
+                # Delete those orders from 'process'.
+                for order in orders:
+                    #order_no is not user-controlled input: statement doesn't need further  psycopg3 sanitization.
+                    full_process_sql += f"DELETE from process WHERE process.order_no={order.order_no};\n"
+                cur.execute(full_process_sql)
+
+                #Delete from 'process' and 'orders'.
+                cur.execute(
+                    """ 
+                    DELETE FROM pay
+                    WHERE pay.cust_no = %(cust_no)s;
+                    DELETE FROM orders 
+                    WHERE orders.cust_no = %(cust_no)s;
+                    
+                    """,
+                    {"cust_no": cust_no},
+                )
+                
                 cur.execute(
                     """
                 DELETE FROM customer
@@ -347,7 +380,6 @@ def order_add():
 
             error = None
 
-            # VERIFICAR SE EXISTEM???
             if not order_no:
                 error = "Order Number is required."
 
@@ -445,41 +477,52 @@ def order_pay(order_no):
 @app.route("/product", methods=("GET", "POST"))
 # @app.route("/accounts", methods=("GET",))
 def product_index():
-    # TODO: esqueci me de try-catch aqui
-    page = request.args.get("page", type=int, default=1)
-    """Product management page."""
-    with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur:
-            nr_items = (
+    try:
+        page = request.args.get("page", type=int, default=1)
+        """Product management page."""
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:
+                nr_items = (
+                    cur.execute(
+                        """
+                    SELECT COUNT(*) as count
+                    FROM product;
+                """
+                    )
+                    .fetchone()
+                    .count
+                )
+
+                nr_pages = ceil(nr_items / ITEMS)
                 cur.execute(
                     """
-                SELECT COUNT(*) as count
-                FROM product;
-            """
+                SELECT SKU, name, description, price, ean
+                FROM product
+                ORDER BY price DESC
+                OFFSET %(offset)s;
+                """,
+                    {"offset": (page - 1) * ITEMS},
+                    # prepare=True,
                 )
-                .fetchone()
-                .count
+                products = cur.fetchmany(ITEMS)
+            return render_template(
+                "product/index.html",
+                products=products,
+                cur_page=page,
+                nr_pages=nr_pages,
+                pages=get_pages(page, nr_pages),
             )
 
-            nr_pages = ceil(nr_items / ITEMS)
-            cur.execute(
-                """
-               SELECT SKU, name, description, price, ean
-               FROM product
-               ORDER BY price DESC
-               OFFSET %(offset)s;
-               """,
-                {"offset": (page - 1) * ITEMS},
-                # prepare=True,
-            )
-            products = cur.fetchmany(ITEMS)
+    except Exception as e:
+        flash(f"An error ocurred: {e}")
         return render_template(
-            "product/index.html",
-            products=products,
-            cur_page=page,
-            nr_pages=nr_pages,
-            pages=get_pages(page, nr_pages),
-        )
+                "product/index.html",
+                products=[],
+                cur_page=1,
+                nr_pages=1,
+                pages=[1],
+            )
+
 
 
 @app.route("/product/add", methods=("GET", "POST"))
