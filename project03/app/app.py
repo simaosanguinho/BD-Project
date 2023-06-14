@@ -11,6 +11,9 @@ from flask import request
 from flask import url_for
 from psycopg.rows import namedtuple_row
 from psycopg_pool import ConnectionPool
+from math import ceil
+
+ITEMS = 7
 
 # postgres://{user}:{password}@{hostname}:{port}/{database-name}
 DATABASE_URL = "postgres://db:db@postgres/db"
@@ -42,6 +45,19 @@ app.secret_key = b"CHANGE_ME_IN_PRODUCTION"
 log = app.logger
 
 
+def get_pages(cur_page, nr_pages):
+    # Returns a list of pages to display in pagination.
+    if nr_pages <= 10:
+        return range(1, nr_pages + 1)
+    if cur_page <= 5:
+        return range(1, 10 + 1)
+
+    if cur_page in range(nr_pages - 5, nr_pages + 1):
+        return range(nr_pages - 10, nr_pages + 1)
+
+    return range(max(cur_page - 5, 1), min(cur_page + 5, nr_pages + 1))
+
+
 @app.route("/", methods=("GET",))
 # @app.route("/accounts", methods=("GET",))
 def index():
@@ -57,22 +73,48 @@ def index():
 @app.route("/customer", methods=("GET",))
 # @app.route("/accounts", methods=("GET",))
 def customer_index():
+    page = request.args.get("page", type=int, default=1)
     """Customer management page."""
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
+            nr_items = (
+                cur.execute(
+                    """
+                SELECT COUNT(*) as count
+                FROM customer;
+            """
+                )
+                .fetchone()
+                .count
+            )
+            log.debug(f"nr_items = {nr_items}")
+
+            nr_pages = ceil(nr_items / ITEMS)
+            if page < 1:
+                page = 1
+            elif page > nr_pages:
+                page = nr_pages
             cur.execute(
                 """
             SELECT cust_no, name, email, address, phone
             FROM customer
-            ORDER BY name DESC;
+            ORDER BY name DESC
+            OFFSET %(offset)s;
             """,
-                {},
-                # prepare=True,
+                {"offset": (page - 1) * ITEMS},
+                prepare=True,
             )
-            customers = cur.fetchmany(10)
+            customers = cur.fetchmany(ITEMS)
             log.debug(f"Found {cur.rowcount} rows.")
+        # asset(ITEMS == )
 
-    return render_template("customer/index.html", customers=customers)
+    return render_template(
+        "customer/index.html",
+        customers=customers,
+        cur_page=page,
+        nr_pages=nr_pages,
+        pages=get_pages(page, nr_pages),
+    )
 
 
 @app.route("/customer/add", methods=("GET", "POST"))
@@ -225,25 +267,44 @@ def customer_delete(cust_no):
 # @app.route("/accounts", methods=("GET",))
 def order_index():
     try:
+        page = request.args.get("page", type=int, default=1)
         """Order management page."""
         with pool.connection() as conn:
             with conn.cursor(row_factory=namedtuple_row) as cur:
+                nr_items = (
+                    cur.execute(
+                        """
+                    SELECT COUNT(*) as count
+                    FROM orders;
+                """
+                    )
+                    .fetchone()
+                    .count
+                )
+
+                nr_pages = ceil(nr_items / ITEMS)
                 cur.execute(
                     """
                 SELECT o.order_no, o.cust_no, o.date, p.order_no AS paid_order_no
                 FROM orders o
                 LEFT OUTER JOIN pay p ON o.order_no = p.order_no
-                ORDER BY o.date DESC;
+                ORDER BY o.date DESC
+                OFFSET %(offset)s;
                 """,
-                    {},
+                    {"offset": (page - 1) * ITEMS},
                     # prepare=True,
                 )
-                orders = cur.fetchmany(10)
-                log.debug(f"Found {cur.rowcount} rows.")
-                log.debug(orders[0])
+                orders = cur.fetchmany(ITEMS)
 
-        return render_template("order/index.html", orders=orders)
+        return render_template(
+            "order/index.html",
+            orders=orders,
+            cur_page=page,
+            nr_pages=nr_pages,
+            pages=get_pages(page, nr_pages),
+        )
     except Exception as e:
+        raise (e)
         flash(f"An error ocurred: {e}")
         return render_template("order/index.html", orders=[])
 
@@ -251,130 +312,7 @@ def order_index():
 @app.route("/order/add", methods=("GET", "POST"))
 def order_add():
     """Add a new order."""
-
-    products_to_add = []
-    # get products
-    with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur:
-            products = cur.execute(
-                """
-                       SELECT name, description, price, sku
-                       FROM product
-                       ORDER BY price DESC;
-                       """,
-                {},
-            ).fetchall()
-
-    if request.method == "POST":
-        order_no = request.form["order_no"]
-        cust_no = request.form["cust_no"]
-        date = request.form["date"]
-        product_qty = []
-        for product in products:
-            product_quantity = request.form[product.sku]
-            if not product_quantity:
-                product_quantity = 0
-            product_qty.append(product_quantity)
-        log.debug("\n\n\n\n\n")
-        log.debug(product_qty)
-
-        i = 0
-        for product in products:
-            if int(product_qty[i]) > 0:
-                products_to_add.append((product.sku, int(product_qty[i])))
-            i = i + 1
-
-        error = None
-
-        # VERIFICAR SE EXISTEM???
-        if not order_no:
-            error = "Order Number is required."
-
-        if not cust_no:
-            error = "Customer Number is required."
-
-        if not date:
-            error = "Date is required."
-
-        if not products_to_add:
-            error = "At least 1 Product is required."
-
-        if error is not None:
-            flash(error)
-        else:
-            with pool.connection() as conn:
-                with conn.cursor(row_factory=namedtuple_row) as cur:
-                    cur.execute(
-                        """
-                       INSERT INTO orders (order_no, cust_no, date)
-                       VALUES (%(order_no)s, %(cust_no)s, %(date)s);
-                       """,
-                        {"order_no": order_no, "cust_no": cust_no, "date": date},
-                    )
-
-                    for product in products_to_add:
-                        cur.execute(
-                            """
-                           INSERT INTO contains (order_no, sku, qty)
-                           VALUES (%(order_no)s, %(sku)s, %(quantity)s);
-                           """,
-                            {
-                                "order_no": order_no,
-                                "sku": product[0],
-                                "quantity": product[1],
-                            },
-                        )
-
-                conn.commit()
-            return redirect(url_for("order_index"))
-
-    return render_template("order/add.html", products=products)
-
-
-@app.route("/order/pay/<order_no>", methods=("GET",))
-def order_pay(order_no):
     try:
-        """Mark an order as paid."""
-
-        with pool.connection() as conn:
-            with conn.cursor(row_factory=namedtuple_row) as cur:
-                order = cur.execute(
-                    """
-                SELECT cust_no
-                FROM orders
-                WHERE order_no = %(order_no)s;
-                """,
-                    {"order_no": order_no},
-                ).fetchone()
-
-                log.debug(order)
-                log.debug(type(order))
-
-                if not order:  # fetchone() returns None if nothing is returned
-                    raise ValueError("TODO FIXME")  # FIXME
-                cust_no = order.cust_no
-                #'Pay' order.
-                cur.execute(
-                    """
-                    INSERT INTO pay (order_no, cust_no)
-                    VALUES (%(order_no)s, %(cust_no)s);
-                    """,
-                    {"order_no": order_no, "cust_no": cust_no},
-                )
-            conn.commit()
-        flash(f"Order '{order_no}' marked as paid.")
-        return redirect(url_for("order_index"))
-
-    except Exception as e:
-        flash(f"An error ocurred: {e}")
-        return redirect(url_for("order_index"))
-
-
-@app.route("/order/add", methods=("GET", "POST"))
-def order_add():
-    try:
-        """Add a new order."""
-
         products_to_add = []
         # get products
         with pool.connection() as conn:
@@ -419,6 +357,9 @@ def order_add():
             if not date:
                 error = "Date is required."
 
+            if not products_to_add:
+                error = "At least 1 Product is required."
+
             if error is not None:
                 flash(error)
             else:
@@ -432,10 +373,62 @@ def order_add():
                             {"order_no": order_no, "cust_no": cust_no, "date": date},
                         )
 
+                        for product in products_to_add:
+                            cur.execute(
+                                """
+                            INSERT INTO contains (order_no, sku, qty)
+                            VALUES (%(order_no)s, %(sku)s, %(quantity)s);
+                            """,
+                                {
+                                    "order_no": order_no,
+                                    "sku": product[0],
+                                    "quantity": product[1],
+                                },
+                            )
+
                     conn.commit()
                 return redirect(url_for("order_index"))
 
         return render_template("order/add.html", products=products)
+
+    except Exception as e:
+        flash(f"An error ocurred: {e}")
+        return redirect(url_for("order_index"))
+
+
+@app.route("/order/pay/<order_no>", methods=("GET",))
+def order_pay(order_no):
+    try:
+        """Mark an order as paid."""
+
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:
+                order = cur.execute(
+                    """
+                SELECT cust_no
+                FROM orders
+                WHERE order_no = %(order_no)s;
+                """,
+                    {"order_no": order_no},
+                ).fetchone()
+
+                log.debug(order)
+                log.debug(type(order))
+
+                if not order:  # fetchone() returns None if nothing is returned
+                    raise ValueError("TODO FIXME")  # FIXME
+                cust_no = order.cust_no
+                #'Pay' order.
+                cur.execute(
+                    """
+                    INSERT INTO pay (order_no, cust_no)
+                    VALUES (%(order_no)s, %(cust_no)s);
+                    """,
+                    {"order_no": order_no, "cust_no": cust_no},
+                )
+            conn.commit()
+        flash(f"Order '{order_no}' marked as paid.")
+        return redirect(url_for("order_index"))
 
     except Exception as e:
         flash(f"An error ocurred: {e}")
@@ -450,21 +443,41 @@ def order_add():
 @app.route("/product", methods=("GET", "POST"))
 # @app.route("/accounts", methods=("GET",))
 def product_index():
+    # TODO: esqueci me de try-catch aqui
+    page = request.args.get("page", type=int, default=1)
     """Product management page."""
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
+            nr_items = (
+                cur.execute(
+                    """
+                SELECT COUNT(*) as count
+                FROM product;
+            """
+                )
+                .fetchone()
+                .count
+            )
+
+            nr_pages = ceil(nr_items / ITEMS)
             cur.execute(
                 """
                SELECT SKU, name, description, price, ean
                FROM product
-               ORDER BY price DESC;
+               ORDER BY price DESC
+               OFFSET %(offset)s;
                """,
-                {},
+                {"offset": (page - 1) * ITEMS},
                 # prepare=True,
             )
-            products = cur.fetchmany(10)
-            log.debug(f"Found {cur.rowcount} rows.")
-    return render_template("product/index.html", products=products)
+            products = cur.fetchmany(ITEMS)
+        return render_template(
+            "product/index.html",
+            products=products,
+            cur_page=page,
+            nr_pages=nr_pages,
+            pages=get_pages(page, nr_pages),
+        )
 
 
 @app.route("/product/add", methods=("GET", "POST"))
@@ -634,21 +647,41 @@ def product_delete(sku):
 
 @app.route("/supplier", methods=("GET", "POST"))
 def supplier_index():
+    page = request.args.get("page", type=int, default=1)
     """Supplier management page."""
     with pool.connection() as conn:
         with conn.cursor(row_factory=namedtuple_row) as cur:
+            nr_items = (
+                cur.execute(
+                    """
+                SELECT COUNT(*) as count
+                FROM product;
+            """
+                )
+                .fetchone()
+                .count
+            )
+
+            nr_pages = ceil(nr_items / ITEMS)
             cur.execute(
                 """
                SELECT tin, name, address, sku, date
                FROM supplier
-               ORDER BY name ASC;
+               ORDER BY name ASC
+               OFFSET %(offset)s;
                """,
-                {},
+                {"offset": (page - 1) * ITEMS},
                 # prepare=True,
             )
-            suppliers = cur.fetchmany(10)
-            log.debug(len(suppliers))
-    return render_template("supplier/index.html", suppliers=suppliers)
+            suppliers = cur.fetchmany(ITEMS)
+
+        return render_template(
+            "supplier/index.html",
+            suppliers=suppliers,
+            cur_page=page,
+            nr_pages=nr_pages,
+            pages=get_pages(page, nr_pages),
+        )
 
 
 @app.route("/supplier/add", methods=("GET", "POST"))

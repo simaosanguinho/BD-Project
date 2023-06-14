@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block content %}
+
   {% for order in orders %}
     <article class="post">
       <header>
@@ -31,4 +32,5 @@
       <hr>
     {% endif %}
   {% endfor %}
+  {% include 'pagination.html' %}
 {% endblock %}

@@ -6,6 +6,8 @@
 {% endblock %}
 
 {% block content %}
+<div style="display: flex; justify-content: center;">
+</div>
   {% for product in products %}
     <article class="post">
       <header>
@@ -15,7 +17,7 @@
         </div>
         <a class="action" href="{{ url_for('product_update', sku=product['sku']) }}">✏️ Edit</a>
         <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('product_delete', sku=product['sku']) }}">🗑️ Delete</a>
-      
+
       </header>
       <p class="body">€ {{ product['price'] }}</p>
     </article>
@@ -23,4 +25,5 @@
       <hr>
     {% endif %}
   {% endfor %}
+  {% include 'pagination.html' %}
 {% endblock %}

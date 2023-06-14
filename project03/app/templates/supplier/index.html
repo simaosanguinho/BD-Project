@@ -17,13 +17,14 @@
           <div class="about">date: {{ supplier['date'] }}</div>
 
         </div>
-    
+
         <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('supplier_delete', tin=supplier['tin']) }}">🗑️ Delete</a>
-      
+
       </header>
     </article>
     {% if not loop.last %}
       <hr>
     {% endif %}
   {% endfor %}
+  {% include 'pagination.html' %}
 {% endblock %}

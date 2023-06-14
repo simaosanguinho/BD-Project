@@ -5,7 +5,9 @@
   <button><a href="{{ url_for('customer_add')}}">Add Customer</a></button>
 {% endblock %}
 
+
 {% block content %}
+
   {% for customer in customers %}
     <article class="post">
       <header>
@@ -20,11 +22,12 @@
         <a class="action" href="{{ url_for('customer_update', cust_no=customer['cust_no']) }}">✏️ Edit</a>
 
         <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('customer_delete', cust_no=customer['cust_no']) }}">🗑️ Delete</a>
-      
+
       </header>
     </article>
     {% if not loop.last %}
       <hr>
     {% endif %}
   {% endfor %}
+  {% include 'pagination.html' %}
 {% endblock %}
