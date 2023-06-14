@@ -1,35 +1,38 @@
-<!doctype html>
-<title>{% block title %}{% endblock %} - Orders"R"Us</title>
-      <!--Import Google Icon Font-->
-      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!DOCTYPE html>
+<title>{% block title %}{% endblock %} - BDelivery</title>
+<!--Import Google Icon Font-->
+<link
+  href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  rel="stylesheet"
+/>
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,600,0,0"
+/>
 
-      <!--Let browser know website is optimized for mobile-->
-      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Compiled and minified CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <!-- Compiled and minified JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}">
+<!--Import tailwind.css-->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!--Let browser know website is optimized for mobile-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Compiled and minified CSS -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+/>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,600,0,0" />
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='output.css') }}" />
 
 
-  <nav>
-    <div class="nav-wrapper">
-      <a href="/" class="brand-logo left">Orders"R"Us</a>
-      <ul id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a href="{{ url_for('customer_index') }}">Customers</a>
-        <li><a href="{{ url_for('order_index') }}">Orders</a>
-        <li><a href="{{ url_for('product_index') }}">Products</a>
-        <li><a href="{{ url_for('supplier_index') }}">Suppliers</a>
-      </ul>
-    </div>
-  </nav>
+{% include 'navbar.html' %}
 
-  <section class="content">
-    <header>
-      {% block header %}{% endblock %}
-    </header>
-    {% for message in get_flashed_messages() %}
-      <div class="flash">{{ message }}</div>
-    {% endfor %}
-    {% block content %}{% endblock %}
-  </section>
+<section class="content">
+  <header>{% block header %}{% endblock %}</header>
+  {% for message in get_flashed_messages() %}
+  <div class="flash">{{ message }}</div>
+  {% endfor %} {% block content %}{% endblock %}
+</section>
