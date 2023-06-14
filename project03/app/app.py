@@ -13,7 +13,7 @@ from psycopg.rows import namedtuple_row
 from psycopg_pool import ConnectionPool
 from math import ceil
 
-ITEMS = 7
+ITEMS = 15
 
 # postgres://{user}:{password}@{hostname}:{port}/{database-name}
 DATABASE_URL = "postgres://db:db@postgres/db"
@@ -288,7 +288,7 @@ def order_index():
                 SELECT o.order_no, o.cust_no, o.date, p.order_no AS paid_order_no
                 FROM orders o
                 LEFT OUTER JOIN pay p ON o.order_no = p.order_no
-                ORDER BY o.date DESC
+                ORDER BY o.order_no ASC
                 OFFSET %(offset)s;
                 """,
                     {"offset": (page - 1) * ITEMS},
@@ -372,6 +372,8 @@ def order_add():
                         """,
                             {"order_no": order_no, "cust_no": cust_no, "date": date},
                         )
+                        
+                    
 
                         for product in products_to_add:
                             cur.execute(

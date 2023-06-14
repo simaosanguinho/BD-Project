@@ -1,41 +1,140 @@
 {% extends 'base.html' %} {% block header %}
-<h1>{% block title %}New Order {% endblock %}</h1>
+<div
+  class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+  aria-hidden="true"
+>
+  <div
+    class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#5ebaff] to-[#9DB2BF] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+    style="
+      clip-path: polygon(
+        74.1% 44.1%,
+        100% 61.6%,
+        97.5% 26.9%,
+        85.5% 0.1%,
+        80.7% 2%,
+        72.5% 32.5%,
+        60.2% 62.4%,
+        52.4% 68.1%,
+        47.5% 58.3%,
+        45.2% 34.5%,
+        27.5% 76.7%,
+        0.1% 64.9%,
+        17.9% 100%,
+        27.6% 76.8%,
+        76.1% 97.7%,
+        74.1% 44.1%
+      );
+    "
+  ></div>
+</div>
+
+<h1
+  class="ml-4 text-3xl font-semibold leading-7 text-gray-900 mt-8 mb-3 justify-content: center"
+>
+  {% block title %}New Order {% endblock %}
+</h1>
 
 {% endblock %} {% block content %}
-<form action="/order/add" method="post">
-  <div>
-    <label for="sku">Order Number</label>
-    <input type="text" name="order_no" id="order_no" />
-  </div>
-  <div>
-    <label for="name">Customer Number</label>
-    <input type="text" name="cust_no" id="cust_no" />
-  </div>
-  <div>
-    <label for="price">Date</label>
-    <input type="text" name="date" id="date" />
-  </div>
 
+<form class="mx-20" action="/order/add" method="post">
+  <div class="mb-6 w-80">
+    <label class="block mb-2 text-sm font-medium text-gray-900"
+      >Order Number</label
+    >
+    <input
+      id="order_no"
+      name="order_no"
+      type="number"
+      class="bg-slate-400 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
+      required
+    />
+  </div>
+  <div class="mb-6 w-80">
+    <label class="block mb-2 text-sm font-medium text-gray-900"
+      >Customer Number</label
+    >
+    <input
+      id="cust_no"
+      name="cust_no"
+      type="number"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+      required
+    />
+  </div>
+  <div class="mb-6 w-80">
+    <label for="date" class="block mb-2 text-sm font-medium text-gray-900"
+      >Date</label
+    >
+    <input
+      id="date"
+      name="date"
+      type="date"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full "
+      required
+    />
+  </div>
+  <input
+      type="submit"
+      class="mr-20 mt-8 h-10 rounded-md bg-slate-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      value="Save"
+    />
 
-  {% for product in products %}
-    <article class="post">
-      <header>
-        <div>
-          <h1>{{ product['name'] }}</h1>
-          <div class="about">description: {{ product['description'] }}</div>
+  <div class="mt-20 overflow-y-scroll h-80">
+    {% for product in products %}
+    <li class="flex justify-between gap-x-6 py-5 mx-20">
+      <div class="flex gap-x-4">
+        <div class="min-w-0 flex-auto">
+          <p class="text-sm font-semibold leading-6 text-gray-900">
+            {{ product['name'] }}
+          </p>
+          <p class="mt-1 truncate text-xs leading-5 text-gray-500">
+            {{ product['description'] }}
+          </p>
         </div>
-        <input type="number" name="{{ product['sku']}}" min = "0" id="qty"/>
-        <button><a href="">Add</a></button>
-        
-      
-      </header>
-      <p class="body">€ {{ product['price'] }}</p>
-    </article>
+      </div>
+      <div class="hidden sm:flex sm:flex-col sm:items-end">
+        <p class="text-sm leading-6 text-gray-900">€ {{ product['price'] }}</p>
+        <input
+          type="number"
+          class="w-10"
+          name="{{ product['sku']}}"
+          min="0"
+          id="qty"
+        />
+      </div>
+    </li>
     {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
-
-  <input type="submit" value="Save" />
-  {% endblock %}
-
+    <hr />
+    {% endif %} {% endfor %}
+    
+    {% endblock %}
+  </div>
+  <div
+    class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-90rem)]"
+    aria-hidden="true"
+  >
+    <div
+      class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#5ebaff] to-[#9DB2BF] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+      style="
+        clip-path: polygon(
+          74.1% 44.1%,
+          100% 61.6%,
+          97.5% 26.9%,
+          85.5% 0.1%,
+          80.7% 2%,
+          72.5% 32.5%,
+          60.2% 62.4%,
+          52.4% 68.1%,
+          47.5% 58.3%,
+          45.2% 34.5%,
+          27.5% 76.7%,
+          0.1% 64.9%,
+          17.9% 100%,
+          27.6% 76.8%,
+          76.1% 97.7%,
+          74.1% 44.1%
+        );
+      "
+    ></div>
+  </div>
+</form>
