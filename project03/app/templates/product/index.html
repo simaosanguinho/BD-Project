@@ -1,85 +1,32 @@
 {% extends 'base.html' %}
-<div
-  class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
-  aria-hidden="true"
->
-  <div
-    class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#5ebaff] to-[#9DB2BF] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-    style="
-      clip-path: polygon(
-        74.1% 44.1%,
-        100% 61.6%,
-        97.5% 26.9%,
-        85.5% 0.1%,
-        80.7% 2%,
-        72.5% 32.5%,
-        60.2% 62.4%,
-        52.4% 68.1%,
-        47.5% 58.3%,
-        45.2% 34.5%,
-        27.5% 76.7%,
-        0.1% 64.9%,
-        17.9% 100%,
-        27.6% 76.8%,
-        76.1% 97.7%,
-        74.1% 44.1%
-      );
-    "
-  ></div>
-</div>
 
-{% block header %}
-  <h1>{% block title %}Product Management{% endblock %}</h1>
-  <button><a href="{{ url_for('product_add')}}">Add Product</a></button>
-{% endblock %}
+{% set page_title = 'Product Management' %}
+
+{% set page_action = {'name': 'Add Product', url: url_for('product_add')} %}
+
+{% set fields = ['Product name', 'Description', 'Price', 'Edit', 'Delete'] %}
+{% macro get_heading(item) -%}
+    {{ item.name }}
+{%- endmacro %}
+
+{% macro del_product(item) -%}
+<a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('product_delete', sku=item.sku) }}">🗑️ Delete</a>
+{%- endmacro %}
+{% macro edit_product(item) -%}
+<a class="action" href="{{ url_for('product_update', sku=item.sku) }}"
+>✏️ Edit</a
+>
+{%- endmacro %}
+{% macro get_attrs(item) -%}
+
+  <td class="px-6 py-4">{{ item.description }}</td>
+  <td class="px-6 py-4">{{ item.price }} €</td>
+  <td class="px-6 py-4 underline">{{ edit_product(item) }} </td>
+  <td class="px-6 py-4 underline">{{ del_product(item) }}</td>
+{%- endmacro %}
+
 
 {% block content %}
-<div style="display: flex; justify-content: center;">
-</div>
-  {% for product in products %}
-    <article class="post">
-      <header>
-        <div>
-          <h1>{{ product['name'] }}</h1>
-          <div class="about">description: {{ product['description'] }}</div>
-        </div>
-        <a class="action" href="{{ url_for('product_update', sku=product['sku']) }}">✏️ Edit</a>
-        <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('product_delete', sku=product['sku']) }}">🗑️ Delete</a>
 
-      </header>
-      <p class="body">€ {{ product['price'] }}</p>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
-  {% include 'pagination.html' %}
+{% include 'index_table.html' %}
 {% endblock %}
-<div
-  class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-90rem)]"
-  aria-hidden="true"
->
-  <div
-    class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#5ebaff] to-[#9DB2BF] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-    style="
-      clip-path: polygon(
-        74.1% 44.1%,
-        100% 61.6%,
-        97.5% 26.9%,
-        85.5% 0.1%,
-        80.7% 2%,
-        72.5% 32.5%,
-        60.2% 62.4%,
-        52.4% 68.1%,
-        47.5% 58.3%,
-        45.2% 34.5%,
-        27.5% 76.7%,
-        0.1% 64.9%,
-        17.9% 100%,
-        27.6% 76.8%,
-        76.1% 97.7%,
-        74.1% 44.1%
-      );
-    "
-  ></div>
-</div>

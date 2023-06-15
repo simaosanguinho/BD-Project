@@ -88,38 +88,47 @@
     />
   </div>
   <div class="flex mr-20">
-  <h2 class="text-2xl ml-auto font-semibold leading-7 text-gray-900">What You Do Want To Add?</h2>
+    <h2 class="text-2xl ml-auto font-semibold leading-7 text-gray-900">
+      What Do You Want To Add?
+    </h2>
 
-  <div id="productsdiv" class="mt-20 overflow-y-scroll w-6/12" style="max-height: 50rem !important;">
-    {% for product in products %}
-    <li class="flex justify-between gap-x-6 py-5 mx-20" style="width: 100rem !important">
-      <div class="flex gap-x-4">
-        <div class="min-w-0 flex-auto">
-          <p class="text-sm font-semibold leading-6 text-gray-900">
-            {{ product['name'] }}
-          </p>
-          <p class="mt-1 truncate text-xs leading-5 text-gray-500">
-            {{ product['description'] }}
-          </p>
+    <div
+      id="productsdiv"
+      class="mt-20 overflow-y-scroll w-6/12"
+      style="max-height: 50rem !important"
+    >
+      {% for product in products %}
+      <li
+        class="flex justify-between gap-x-6 py-5 mx-20"
+        style="width: 100rem !important"
+      >
+        <div class="flex gap-x-4">
+          <div class="min-w-0 flex-auto">
+            <p class="text-sm font-semibold leading-6 text-gray-900">
+              {{ product['name'] }}
+            </p>
+            <p class="mt-1 truncate text-xs leading-5 text-gray-500">
+              {{ product['description'] }}
+            </p>
+          </div>
         </div>
-      </div>
-      <div class="hidden sm:flex sm:flex-col sm:items-end">
-        <p class="text-sm leading-6 text-gray-900">€ {{ product['price'] }}</p>
-        <input
-          type="number"
-          class="w-10"
-          name="{{ product['sku']}}"
-          min="0"
-          id="qty"
-        />
-      </div>
-    </li>
-    {% if not loop.last %}
-    <hr />
-    {% endif %} {% endfor %} {% endblock %}
-</div>
-
-    
+        <div class="hidden sm:flex sm:flex-col sm:items-end">
+          <p class="text-sm leading-6 text-gray-900">
+            € {{ product['price'] }}
+          </p>
+          <input
+            type="number"
+            class="w-10"
+            name="{{ product['sku']}}"
+            min="0"
+            id="qty"
+          />
+        </div>
+      </li>
+      {% if not loop.last %}
+      <hr />
+      {% endif %} {% endfor %} {% endblock %}
+    </div>
   </div>
   <div
     class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-90rem)]"
@@ -151,8 +160,4 @@
   </div>
 </form>
 
-
-<style>
-
-
-</style>
+<style></style>

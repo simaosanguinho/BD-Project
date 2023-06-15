@@ -1,31 +1,27 @@
-{% extends 'base.html' %}
-
-{% block header %}
-  <h1>{% block title %}New Customer {% endblock %}</h1>
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}New Customer {% endblock %}</h1>
+{% endblock %} {% block content %}
+<form action="/customer/add" method="post">
+  <div>
+    <label for="cust_no">Custo_no</label>
+    <input type="text" name="cust_no" id="cust_no" />
+  </div>
+  <div>
+    <label for="name">Name</label>
+    <input type="text" name="name" id="name" />
+  </div>
+  <div>
+    <label for="email">Email</label>
+    <input type="text" name="email" id="email" />
+  </div>
+  <div>
+    <label for="phone">Phone</label>
+    <input type="phone" name="phone" id="phone" />
+  </div>
+  <div>
+    <label for="address">address</label>
+    <input type="address" name="address" id="address" />
+  </div>
+  <input type="submit" value="Save" />
   {% endblock %}
-
-  {% block content %}
-    <form action="/customer/add" method="post">
-        <div>
-            <label for="cust_no">Custo_no</label>
-            <input type="text" name="cust_no" id="cust_no">
-        </div>
-        <div>
-            <label for="name">Name</label>
-            <input type="text" name="name" id="name">
-        </div>
-        <div>
-            <label for="email">Email</label>
-            <input type="text" name="email" id="email">
-        </div>
-        <div>
-            <label for="phone">Phone</label>
-            <input type="phone" name="phone" id="phone">
-        </div>
-        <div>
-            <label for="address">address</label>
-            <input type="address" name="address" id="address">
-        </div>
-        <input type="submit" value="Save">
-{% endblock %}
-                                    
+</form>

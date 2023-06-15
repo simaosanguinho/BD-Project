@@ -1,29 +1,46 @@
 {% block content %}
 <div style="display: flex; justify-content: center">
-<ul class="pagination">
-
-  {%if cur_page > 1 %}
-  <li style="width: 50px" class="{{ 'active' if page == cur_page else 'waves-effect'}}"><a href="?page={{ cur_page - 1}}"><i class="material-icons">chevron_left</i></a></li>
-  {%else %}
-  <li style="width: 50px" class="disabled"><a href="#"><i class="material-icons">chevron_left</i></a></li>
-  {%endif %}
-
-  {% for page in pages %}
-  <li style="width: 50px" class="{{ 'active' if page == cur_page else 'waves-effect'}}"><a href="?page={{ page }}">{{ page }}</a></li>
-  {% endfor %}
-
-  {%if cur_page < nr_pages %}
-  <li style="width: 50px" class="{{ 'active' if page == cur_page else 'waves-effect'}}"><a href="?page={{ cur_page + 1 if cur_page < nr_pages else nr_pages }}"><i class="material-icons">chevron_right</i></a></li>
-  {%else %}
-  <li style="width: 50px" class="disabled"><a href="#"><i class="material-icons">chevron_right</i></a></li>
-  {%endif %}
-</ul>
+  <ul class="pagination">
+    {%if cur_page > 1 %}
+    <li
+      style="width: 50px"
+      class="{{ 'active' if page == cur_page else 'waves-effect'}}"
+    >
+      <a href="?page={{ cur_page - 1}}"
+        ><i class="material-icons">chevron_left</i></a
+      >
+    </li>
+    {%else %}
+    <li style="width: 50px" class="disabled">
+      <a href="#"><i class="material-icons">chevron_left</i></a>
+    </li>
+    {%endif %} {% for page in pages %}
+    <li
+      style="width: 50px"
+      class="{{ 'active' if page == cur_page else 'waves-effect'}}"
+    >
+      <a href="?page={{ page }}">{{ page }}</a>
+    </li>
+    {% endfor %} {%if cur_page < nr_pages %}
+    <li
+      style="width: 50px"
+      class="{{ 'active' if page == cur_page else 'waves-effect'}}"
+    >
+      <a href="?page={{ cur_page + 1 if cur_page < nr_pages else nr_pages }}"
+        ><i class="material-icons">chevron_right</i></a
+      >
+    </li>
+    {%else %}
+    <li style="width: 50px" class="disabled">
+      <a href="#"><i class="material-icons">chevron_right</i></a>
+    </li>
+    {%endif %}
+  </ul>
 </div>
 
 <style>
   .active {
-    background-color: #DDE6ED !important;
+    background-color: #dde6ed !important;
   }
-
 </style>
 {% endblock %}

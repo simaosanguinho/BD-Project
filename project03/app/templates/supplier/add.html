@@ -1,31 +1,27 @@
-{% extends 'base.html' %}
-
-{% block header %}
-  <h1>{% block title %}New Supplier {% endblock %}</h1>
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}New Supplier {% endblock %}</h1>
+{% endblock %} {% block content %}
+<form action="/supplier/add" method="post">
+  <div>
+    <label for="tin">TIN</label>
+    <input type="text" name="tin" id="tin" />
+  </div>
+  <div>
+    <label for="name">Name</label>
+    <input type="text" name="name" id="name" />
+  </div>
+  <div>
+    <label for="address">address</label>
+    <input type="text" name="address" id="address" />
+  </div>
+  <div>
+    <label for="type">sku</label>
+    <input type="text" name="sku" id="sku" />
+  </div>
+  <div>
+    <label for="size">date</label>
+    <input type="text" name="date" id="date" />
+  </div>
+  <input type="submit" value="Save" />
   {% endblock %}
-
-  {% block content %}
-    <form action="/supplier/add" method="post">
-        <div>
-            <label for="tin">TIN</label>
-            <input type="text" name="tin" id="tin">
-        </div>
-        <div>
-            <label for="name">Name</label>
-            <input type="text" name="name" id="name">
-        </div>
-        <div>
-            <label for="address">address</label>
-            <input type="text" name="address" id="address">
-        </div>
-        <div>
-            <label for="type">sku</label>
-            <input type="text" name="sku" id="sku">
-        </div>
-        <div>
-            <label for="size">date</label>
-            <input type="text" name="date" id="date">
-        </div>
-        <input type="submit" value="Save">
-{% endblock %}
-                                    
+</form>

@@ -1,33 +1,43 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Customer Management{% endblock %}</h1>
-  <button><a href="{{ url_for('customer_add')}}">Add Customer</a></button>
-{% endblock %}
+{% set page_title = 'Customer Management' %}
 
+{% set page_action = {'name': 'Add Customer', url: url_for('customer_add')} %}
+
+{% set fields = ['Name', 'Customer nº', 'Address', 'E-mail', 'Phone', 'Update', 'Delete'] %}
+
+{% macro get_heading(item) -%}
+    {{ item.name }}
+{%- endmacro %}
+
+{% macro edit_customer(item) -%}
+    <a
+      class="action"
+      href="{{ url_for('customer_update', cust_no=item.cust_no) }}"
+      >✏️ Edit</a
+    >
+{%- endmacro %}
+
+
+{% macro del_customer(item) -%}
+<a
+class="action"
+onclick="return confirm('Are you sure?');"
+href="{{ url_for('customer_delete', cust_no=item.cust_no) }}"
+>🗑️ Delete</a>
+{%- endmacro %}
+
+{% macro get_attrs(item) -%}
+
+  <td class="px-6 py-4">{{ item.cust_no }}</td>
+  <td class="px-6 py-4">{{ item.address }}</td>
+  <td class="px-6 py-4">{{ item.email }} </td>
+  <td class="px-6 py-4">{{ item.phone }} </td>
+  <td class="px-6 py-4 underline">{{ edit_customer(item) }}</td>
+  <td class="px-6 py-4 underline">{{ del_customer(item) }}</td>
+{%- endmacro %}
 
 {% block content %}
 
-  {% for customer in customers %}
-    <article class="post">
-      <header>
-        <div>
-          <h1>{{ customer['name'] }}</h1>
-          <div class="about">number: {{ customer['cust_no'] }}</div>
-          <div class="about">address: {{ customer['address'] }}</div>
-          <div class="about">email: {{ customer['email'] }}</div>
-          <div class="about">phone: {{ customer['phone'] }}</div>
-
-        </div>
-        <a class="action" href="{{ url_for('customer_update', cust_no=customer['cust_no']) }}">✏️ Edit</a>
-
-        <a class="action" onclick="return confirm('Are you sure?');" href="{{ url_for('customer_delete', cust_no=customer['cust_no']) }}">🗑️ Delete</a>
-
-      </header>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
-  {% include 'pagination.html' %}
+{% include 'index_table.html' %}
 {% endblock %}

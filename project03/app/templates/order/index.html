@@ -1,112 +1,38 @@
-{% extends 'base.html' %} {% block header %}
-<div
-  class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
-  aria-hidden="true"
->
-  <div
-    class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#5ebaff] to-[#9DB2BF] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-    style="
-      clip-path: polygon(
-        74.1% 44.1%,
-        100% 61.6%,
-        97.5% 26.9%,
-        85.5% 0.1%,
-        80.7% 2%,
-        72.5% 32.5%,
-        60.2% 62.4%,
-        52.4% 68.1%,
-        47.5% 58.3%,
-        45.2% 34.5%,
-        27.5% 76.7%,
-        0.1% 64.9%,
-        17.9% 100%,
-        27.6% 76.8%,
-        76.1% 97.7%,
-        74.1% 44.1%
-      );
-    "
-  ></div>
-</div>
-<div class="px-4 sm:px-0 flex justify-between">
-  <h1
-    class="ml-4 text-3xl font-semibold leading-7 text-gray-900 mt-8 mb-3 justify-content: center"
-  >
-    Orders
-  </h1>
-  <a
-    href="{{ url_for('order_add')}}"
-    class="mr-20 mt-8 h-10 rounded-md bg-slate-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-    >Add Order</a
-  >
-</div>
+{% extends 'base.html' %}
 
-{% endblock %} {% block content %}
-<div class="mx-20 my-6 relative overflow-x-auto shadow-md sm: rounded-lg">
-  <table class="w-full text-sm text-left">
-    <thead
-      class="text-xs uppercase bg-slate-600 dark:bg-slate-600 dark:text-gray-100"
-    >
-      <tr>
-        <th scope="col" class="px-6 py-3">Order Number</th>
-        <th scope="col" class="px-6 py-3">Customer Number</th>
-        <th scope="col" class="px-6 py-3">Date</th>
-        <th scope="col" class="px-6 py-3">Payment</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for order in orders %}
+{% set page_title = 'Order Management' %}
 
-      <article class="post">
-        <tr class="even:bg-slate-300 odd:bg-slate-200">
-          <th scope="row" class="px-6 py-4">{{ order['order_no'] }}</th>
-          <td class="px-6 py-4">{{ order['cust_no'] }}</td>
-          <td class="px-6 py-4">{{ order['date'] }}</td>
-          <td class="px-6 py-4">
-            {% if not order['paid_order_no'] %}
-            <a
-              class="action text-red-600 underline"
-              onclick="return confirm('Are you sure you want to mark this order as paid?');"
-              href="{{ url_for('order_pay', order_no=order['order_no']) }}"
-              >Pay</a
-            >
+{% set page_action = {'name': 'Add Order', url: url_for('order_add')} %}
 
-            {% else %}
-            <div class="font-medium text-green-600">Paid</div>
+{% set fields = ['Order Number', 'Customer Number', 'Date', 'Payment'] %}
 
-            {% endif %}
-          </td>
-        </tr>
-      </article>
-      {% if not loop.last %} {% endif %} {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% include 'pagination.html' %} {% endblock %}
-<div
-  class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-90rem)]"
-  aria-hidden="true"
->
-  <div
-    class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#5ebaff] to-[#9DB2BF] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-    style="
-      clip-path: polygon(
-        74.1% 44.1%,
-        100% 61.6%,
-        97.5% 26.9%,
-        85.5% 0.1%,
-        80.7% 2%,
-        72.5% 32.5%,
-        60.2% 62.4%,
-        52.4% 68.1%,
-        47.5% 58.3%,
-        45.2% 34.5%,
-        27.5% 76.7%,
-        0.1% 64.9%,
-        17.9% 100%,
-        27.6% 76.8%,
-        76.1% 97.7%,
-        74.1% 44.1%
-      );
-    "
-  ></div>
-</div>
+
+{% macro get_heading(item) -%}
+    {{ item.order_no }}
+{%- endmacro %}
+
+{% macro pay_field(item) -%}
+{% if not item.paid_order_no %}
+<a
+  class="action text-red-600 underline"
+  onclick="return confirm('Are you sure you want to mark this order as paid?');"
+  href="{{ url_for('order_pay', order_no=item.order_no) }}"
+  >Pay</a>
+
+{% else %}
+<div class="font-medium text-green-600">Paid</div>
+
+{% endif %}
+{%- endmacro %}
+
+{% macro get_attrs(item) -%}
+
+  <td class="px-6 py-4">{{ item.cust_no }}</td>
+  <td class="px-6 py-4">{{ item.date }}</td>
+  <td class="px-6 py-4">{{ pay_field(item) }}</td>
+{%- endmacro %}
+
+{% block content %}
+
+{% include 'index_table.html' %}
+{% endblock %}

@@ -1,10 +1,12 @@
 {% extends 'base.html' %} {% block header %}
-<h1>{% block title %}Customer {{ customer['cust_no'] }} | Edit{% endblock %}</h1>
+<h1>
+  {% block title %}Customer {{ customer['cust_no'] }} | Edit{% endblock %}
+</h1>
 {% endblock %} {% block content %}
 <form method="post">
   <label for="cust_no">cust_no</label>
-  <input name="""cust_no" id="""cust_no" type="""text" value="{{ request.form['cust_no'] or
-  customer['cust_no'] }}" disabled>
+  <input name="""cust_no" id="""cust_no" type="""text" value="{{
+  request.form['cust_no'] or customer['cust_no'] }}" disabled>
   <label for="name">Name</label>
   <input
     name="name"
@@ -21,7 +23,7 @@
     value="{{ customer['email']}}"
     required
   />
-    <label for="phone">phone</label>
+  <label for="phone">phone</label>
   <input
     name="phone"
     id="phone"
@@ -29,7 +31,7 @@
     value="{{ customer['phone']}}"
     required
   />
-    <label for="address">address</label>
+  <label for="address">address</label>
   <input
     name="address"
     id="address"

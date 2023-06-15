@@ -73,48 +73,59 @@ def index():
 @app.route("/customer", methods=("GET",))
 # @app.route("/accounts", methods=("GET",))
 def customer_index():
-    page = request.args.get("page", type=int, default=1)
-    """Customer management page."""
-    with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur:
-            nr_items = (
+    try:
+        page = request.args.get("page", type=int, default=1)
+        """Customer management page."""
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:
+                nr_items = (
+                    cur.execute(
+                        """
+                    SELECT COUNT(*) as count
+                    FROM customer;
+                """
+                    )
+                    .fetchone()
+                    .count
+                )
+                log.debug(f"nr_items = {nr_items}")
+
+                nr_pages = ceil(nr_items / ITEMS)
+                if page < 1:
+                    page = 1
+                elif page > nr_pages:
+                    page = nr_pages
                 cur.execute(
                     """
-                SELECT COUNT(*) as count
-                FROM customer;
-            """
+                SELECT cust_no, name, email, address, phone
+                FROM customer
+                ORDER BY name DESC
+                OFFSET %(offset)s;
+                """,
+                    {"offset": (page - 1) * ITEMS},
+                    prepare=True,
                 )
-                .fetchone()
-                .count
-            )
-            log.debug(f"nr_items = {nr_items}")
+                customers = cur.fetchmany(ITEMS)
+                log.debug(f"Found {cur.rowcount} rows.")
+            # asset(ITEMS == )
 
-            nr_pages = ceil(nr_items / ITEMS)
-            if page < 1:
-                page = 1
-            elif page > nr_pages:
-                page = nr_pages
-            cur.execute(
-                """
-            SELECT cust_no, name, email, address, phone
-            FROM customer
-            ORDER BY name DESC
-            OFFSET %(offset)s;
-            """,
-                {"offset": (page - 1) * ITEMS},
-                prepare=True,
-            )
-            customers = cur.fetchmany(ITEMS)
-            log.debug(f"Found {cur.rowcount} rows.")
-        # asset(ITEMS == )
+        return render_template(
+            "customer/index.html",
+            items=customers,
+            cur_page=page,
+            nr_pages=nr_pages,
+            pages=get_pages(page, nr_pages),
+        )
 
-    return render_template(
-        "customer/index.html",
-        customers=customers,
-        cur_page=page,
-        nr_pages=nr_pages,
-        pages=get_pages(page, nr_pages),
-    )
+    except Exception as e:
+        flash(f"An error ocurred: {e}")
+        return render_template(
+            "customer/index.html",
+            items=[],
+            cur_page=1,
+            nr_pages=1,
+            pages=[1],
+        )
 
 
 @app.route("/customer/add", methods=("GET", "POST"))
@@ -243,9 +254,7 @@ def customer_delete(cust_no):
         """Delete a customer."""
         with pool.connection() as conn:
             with conn.cursor(row_factory=namedtuple_row) as cur:
-
-
-            #Get orders to be deleted.
+                # Get orders to be deleted.
                 cur.execute(
                     """
                 SELECT o.order_no, o.cust_no
@@ -260,22 +269,22 @@ def customer_delete(cust_no):
                 full_process_sql = ""
                 # Delete those orders from 'process'.
                 for order in orders:
-                    #order_no is not user-controlled input: statement doesn't need further  psycopg3 sanitization.
+                    # order_no is not user-controlled input: statement doesn't need further  psycopg3 sanitization.
                     full_process_sql += f"DELETE from process WHERE process.order_no={order.order_no};\n"
                 cur.execute(full_process_sql)
 
-                #Delete from 'process' and 'orders'.
+                # Delete from 'process' and 'orders'.
                 cur.execute(
-                    """ 
+                    """
                     DELETE FROM pay
                     WHERE pay.cust_no = %(cust_no)s;
-                    DELETE FROM orders 
+                    DELETE FROM orders
                     WHERE orders.cust_no = %(cust_no)s;
-                    
+
                     """,
                     {"cust_no": cust_no},
                 )
-                
+
                 cur.execute(
                     """
                 DELETE FROM customer
@@ -331,7 +340,7 @@ def order_index():
 
         return render_template(
             "order/index.html",
-            orders=orders,
+            items=orders,
             cur_page=page,
             nr_pages=nr_pages,
             pages=get_pages(page, nr_pages),
@@ -404,8 +413,6 @@ def order_add():
                         """,
                             {"order_no": order_no, "cust_no": cust_no, "date": date},
                         )
-                        
-                    
 
                         for product in products_to_add:
                             cur.execute(
@@ -507,7 +514,7 @@ def product_index():
                 products = cur.fetchmany(ITEMS)
             return render_template(
                 "product/index.html",
-                products=products,
+                items=products,
                 cur_page=page,
                 nr_pages=nr_pages,
                 pages=get_pages(page, nr_pages),
@@ -516,13 +523,12 @@ def product_index():
     except Exception as e:
         flash(f"An error ocurred: {e}")
         return render_template(
-                "product/index.html",
-                products=[],
-                cur_page=1,
-                nr_pages=1,
-                pages=[1],
-            )
-
+            "product/index.html",
+            items=[],
+            cur_page=1,
+            nr_pages=1,
+            pages=[1],
+        )
 
 
 @app.route("/product/add", methods=("GET", "POST"))
@@ -692,40 +698,51 @@ def product_delete(sku):
 
 @app.route("/supplier", methods=("GET", "POST"))
 def supplier_index():
-    page = request.args.get("page", type=int, default=1)
-    """Supplier management page."""
-    with pool.connection() as conn:
-        with conn.cursor(row_factory=namedtuple_row) as cur:
-            nr_items = (
+    try:
+        page = request.args.get("page", type=int, default=1)
+        """Supplier management page."""
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:
+                nr_items = (
+                    cur.execute(
+                        """
+                    SELECT COUNT(*) as count
+                    FROM product;
+                """
+                    )
+                    .fetchone()
+                    .count
+                )
+
+                nr_pages = ceil(nr_items / ITEMS)
                 cur.execute(
                     """
-                SELECT COUNT(*) as count
-                FROM product;
-            """
+                SELECT tin, name, address, sku, date
+                FROM supplier
+                ORDER BY name ASC
+                OFFSET %(offset)s;
+                """,
+                    {"offset": (page - 1) * ITEMS},
+                    # prepare=True,
                 )
-                .fetchone()
-                .count
+                suppliers = cur.fetchmany(ITEMS)
+
+            return render_template(
+                "supplier/index.html",
+                items=suppliers,
+                cur_page=page,
+                nr_pages=nr_pages,
+                pages=get_pages(page, nr_pages),
             )
 
-            nr_pages = ceil(nr_items / ITEMS)
-            cur.execute(
-                """
-               SELECT tin, name, address, sku, date
-               FROM supplier
-               ORDER BY name ASC
-               OFFSET %(offset)s;
-               """,
-                {"offset": (page - 1) * ITEMS},
-                # prepare=True,
-            )
-            suppliers = cur.fetchmany(ITEMS)
-
+    except Exception as e:
+        flash(f"An error ocurred: {e}")
         return render_template(
             "supplier/index.html",
-            suppliers=suppliers,
-            cur_page=page,
-            nr_pages=nr_pages,
-            pages=get_pages(page, nr_pages),
+            items=[],
+            cur_page=1,
+            nr_pages=1,
+            pages=[1],
         )
 
 
