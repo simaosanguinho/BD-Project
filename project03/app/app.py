@@ -69,6 +69,54 @@ def index():
 #               Customer
 # ----------------------------------------
 
+@app.route("/order_list/<int:cust_no>", methods=("GET",))
+def order_list(cust_no):
+    """Returns a list of orders for a customer."""
+    try:
+        page = request.args.get("page", type=int, default=1)
+        """Order management page."""
+        with pool.connection() as conn:
+            with conn.cursor(row_factory=namedtuple_row) as cur:
+                nr_items = (
+                    cur.execute(
+                        """
+                    SELECT COUNT(*) as count
+                    FROM orders
+                    WHERE cust_no = %(cust_no)s;
+                """,
+                        {"cust_no": cust_no},
+                    )
+                    .fetchone()
+                    .count
+                )
+
+                nr_pages = ceil(nr_items / ITEMS)
+                cur.execute(
+                    """
+                SELECT o.order_no, o.cust_no, o.date, p.order_no AS paid_order_no
+                FROM orders o
+                LEFT OUTER JOIN pay p ON o.order_no = p.order_no
+                WHERE o.cust_no = %(cust_no)s
+                ORDER BY o.order_no ASC
+                OFFSET %(offset)s;
+            """,
+                {"cust_no": cust_no,
+                 "offset": (page - 1) * ITEMS},
+            )
+                orders = cur.fetchmany(ITEMS)
+
+        return render_template(
+            "order/index_of_customer.html",
+            items=orders,
+            cur_page=page,
+            nr_pages=nr_pages,
+            pages=get_pages(page, nr_pages),
+        )
+    except Exception as e:
+        raise (e)
+        flash(f"An error ocurred: {e}")
+        return render_template("order/index_of_customer.html", orders=[])
+
 
 @app.route("/customer", methods=("GET",))
 # @app.route("/accounts", methods=("GET",))

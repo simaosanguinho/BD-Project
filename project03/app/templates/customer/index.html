@@ -4,7 +4,15 @@
 
 {% set page_action = {'name': 'Add Customer', 'url': url_for('customer_add')} %}
 
-{% set fields = ['Name', 'Customer nº', 'Address', 'E-mail', 'Phone', 'Update', 'Delete'] %}
+{% set fields = ['Name', 'Customer nº', 'Address', 'E-mail', 'Phone', 'Orders','Update', 'Delete'] %}
+
+{% macro get_orders(item) %}
+  <a
+    class="action"
+    href="{{ url_for('order_list', cust_no=item.cust_no) }}"
+    >📦 Orders</a
+  >
+{%- endmacro %}
 
 {% macro get_heading(item) -%}
     {{ item.name }}
@@ -33,6 +41,7 @@ href="{{ url_for('customer_delete', cust_no=item.cust_no) }}"
   <td class="px-6 py-4">{{ item.address }}</td>
   <td class="px-6 py-4">{{ item.email }} </td>
   <td class="px-6 py-4">{{ item.phone }} </td>
+  <td class="px-6 py-4 underline">{{ get_orders(item) }}</td>
   <td class="px-6 py-4 underline">{{ edit_customer(item) }}</td>
   <td class="px-6 py-4 underline">{{ del_customer(item) }}</td>
 {%- endmacro %}

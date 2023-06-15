@@ -13,7 +13,11 @@
 
 {% macro pay_field(item) -%}
 {% if not item.paid_order_no %}
-<div class="font-medium text-red-600">Not Paid</div>
+<a
+  class="action text-red-600 underline"
+  onclick="return confirm('Are you sure you want to mark this order as paid?');"
+  href="{{ url_for('order_pay', order_no=item.order_no) }}"
+  >Pay</a>
 {% else %}
 <div class="font-medium text-green-600">Paid</div>
 
