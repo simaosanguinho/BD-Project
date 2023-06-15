@@ -106,8 +106,10 @@ def customer_index():
                     prepare=True,
                 )
                 customers = cur.fetchmany(ITEMS)
-                log.debug(f"Found {cur.rowcount} rows.")
-            # asset(ITEMS == )
+        # Remove special customer that holds deleted customer's leftovers.
+        for customer in customers:
+            if customer.cust_no == -1:
+                customers.remove(customer)
 
         return render_template(
             "customer/index.html",
@@ -249,39 +251,29 @@ def customer_update(cust_no):
 
 
 @app.route("/customer/<int:cust_no>/delete", methods=("POST", "GET"))
-def customer_delete(cust_no):
+def customer_delete(cust_no: int):
     try:
+        if cust_no == -1:
+            flash("Can't delete special customer.")
+            return redirect(url_for("customer_index"))
         """Delete a customer."""
         with pool.connection() as conn:
             with conn.cursor(row_factory=namedtuple_row) as cur:
-                # Get orders to be deleted.
                 cur.execute(
                     """
-                SELECT o.order_no, o.cust_no
-                FROM orders o
-                WHERE o.cust_no = %(cust_no)s;
+                UPDATE orders
+                SET cust_no = -1
+                WHERE cust_no = %(cust_no)s;
                 """,
                     {"cust_no": cust_no},
-                    # prepare=True,
                 )
-                orders = cur.fetchall()
 
-                full_process_sql = ""
-                # Delete those orders from 'process'.
-                for order in orders:
-                    # order_no is not user-controlled input: statement doesn't need further  psycopg3 sanitization.
-                    full_process_sql += f"DELETE from process WHERE process.order_no={order.order_no};\n"
-                cur.execute(full_process_sql)
-
-                # Delete from 'process' and 'orders'.
                 cur.execute(
                     """
-                    DELETE FROM pay
-                    WHERE pay.cust_no = %(cust_no)s;
-                    DELETE FROM orders
-                    WHERE orders.cust_no = %(cust_no)s;
-
-                    """,
+                UPDATE pay
+                SET cust_no = -1
+                WHERE cust_no = %(cust_no)s;
+                """,
                     {"cust_no": cust_no},
                 )
 
@@ -292,8 +284,10 @@ def customer_delete(cust_no):
                 """,
                     {"cust_no": cust_no},
                 )
-                log.debug(f"Deleted {cur.rowcount} rows.")
             conn.commit()
+        flash(f"Deleted customer {cust_no}.")
+        log.debug(f"Deleted {cur.rowcount} rows.")
+
         return redirect(url_for("customer_index"))
     except Exception as e:
         flash(f"An error ocurred: {e}")
@@ -606,7 +600,7 @@ def product_update(sku):
         if request.method == "POST":
             try:
                 price = float(request.form["price"])
-            except ValueError as e:
+            except ValueError:
                 error = "Price must be numeric."
 
             description = request.form["description"]
@@ -708,7 +702,7 @@ def supplier_index():
                         """
                     SELECT COUNT(*) as count
                     FROM product;
-                """
+                    """
                     )
                     .fetchone()
                     .count

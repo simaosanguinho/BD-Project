@@ -2,7 +2,7 @@
 
 {% set page_title = 'Customer Management' %}
 
-{% set page_action = {'name': 'Add Customer', url: url_for('customer_add')} %}
+{% set page_action = {'name': 'Add Customer', 'url': url_for('customer_add')} %}
 
 {% set fields = ['Name', 'Customer nº', 'Address', 'E-mail', 'Phone', 'Update', 'Delete'] %}
 
@@ -22,7 +22,7 @@
 {% macro del_customer(item) -%}
 <a
 class="action"
-onclick="return confirm('Are you sure?');"
+onclick="return confirm('Are you sure you want to delete customer {{ item.cust_no }}?\nThis action is irreversible.');"
 href="{{ url_for('customer_delete', cust_no=item.cust_no) }}"
 >🗑️ Delete</a>
 {%- endmacro %}

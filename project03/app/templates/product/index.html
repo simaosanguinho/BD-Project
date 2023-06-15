@@ -2,7 +2,7 @@
 
 {% set page_title = 'Product Management' %}
 
-{% set page_action = {'name': 'Add Product', url: url_for('product_add')} %}
+{% set page_action = {'name': 'Add Product', 'url': url_for('product_add')} %}
 
 {% set fields = ['Product name', 'Description', 'Price', 'Edit', 'Delete'] %}
 {% macro get_heading(item) -%}
