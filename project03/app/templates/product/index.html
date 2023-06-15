@@ -4,7 +4,7 @@
 
 {% set page_action = {'name': 'Add Product', 'url': url_for('product_add')} %}
 
-{% set fields = ['Product name', 'Description', 'Price', 'Edit', 'Delete'] %}
+{% set fields = ['Product name', 'SKU', 'Description', 'Price', 'Edit', 'Delete'] %}
 {% macro get_heading(item) -%}
     {{ item.name }}
 {%- endmacro %}
@@ -18,7 +18,7 @@
 >
 {%- endmacro %}
 {% macro get_attrs(item) -%}
-
+  <td class="px-6 py-4">{{ item.sku }}</td>
   <td class="px-6 py-4">{{ item.description }}</td>
   <td class="px-6 py-4">{{ item.price }} €</td>
   <td class="px-6 py-4 underline">{{ edit_product(item) }} </td>

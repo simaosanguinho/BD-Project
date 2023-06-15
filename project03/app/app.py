@@ -186,10 +186,10 @@ def customer_add():
         return redirect(url_for("customer_index"))
 
 
-@app.route("/customer/<int:cust_no>/edit", methods=("GET", "POST"))
+@app.route("/customer/<cust_no>/update", methods=("GET", "POST"))
 def customer_update(cust_no):
     try:
-        """Edit a customer."""
+        """Update a customer."""
         with pool.connection() as conn:
             with conn.cursor(row_factory=namedtuple_row) as cur:
                 customer = cur.execute(
@@ -203,15 +203,11 @@ def customer_update(cust_no):
                 log.debug(f"Found {cur.rowcount} rows.")
 
         if request.method == "POST":
-            name = request.form["name"]
             email = request.form["email"]
             address = request.form["address"]
             phone = request.form["phone"]
 
             error = None
-
-            if not name:
-                error = "Name is required."
 
             if not email:
                 error = "Email is required."
@@ -230,12 +226,11 @@ def customer_update(cust_no):
                         cur.execute(
                             """
                         UPDATE customer
-                        SET name = %(name)s, email = %(email)s, phone = %(phone)s, address = %(address)s
+                        SET email = %(email)s, phone = %(phone)s, address = %(address)s
                         WHERE cust_no = %(cust_no)s;
                         """,
                             {
                                 "cust_no": cust_no,
-                                "name": name,
                                 "email": email,
                                 "phone": phone,
                                 "address": address,

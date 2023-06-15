@@ -1,28 +1,101 @@
 {% extends 'base.html' %} {% block header %}
-<h1>{% block title %}Product {{ product['sku'] }} | Edit{% endblock %}</h1>
+
+<h1
+  class="ml-4 text-3xl font-semibold leading-7 text-gray-900 mt-8 mb-3 justify-content: center"
+>
+  {% block title %}Edit Product {% endblock %}
+</h1>
+
 {% endblock %} {% block content %}
-<form method="post">
-  <label for="sku">SKU</label>
-  <input name="""sku" id="""sku" type="""text" value="{{ request.form['sku'] or
-  product['sku'] }}" disabled>
-  <label for="balance">Price</label>
-  <input
-    name="price"
-    id="price"
-    type="number"
-    value="{{ request.form['price'] or product['price'] }}"
-    required
-  />
-  <label for="description">Description</label>
-  <input
-    name="description"
-    id="description"
-    type="text"
-    min="0"
-    value="{{ product['description']}}"
-    required
-  />
-  <input type="submit" value="Save" />
+
+<form
+  class="mx-24 max-w-100 flex justify-center"
+  method="post"
+  style="max-height: 45rem !important"
+>
+  <div
+    class="flex-col my-auto items-center mt-20"
+    style="max-height: 40rem !important"
+  >
+  <div class="justify-center">
+    <div class="mb-6 w-80">
+      <div class="flex flex-row mb-4">
+      <h2 class="block justify-center mb-2 font-medium text-gray-900 text-4xl"
+        >{{ request.form['name'] or product['name'] }} 
+      
+      </h2>
+
+      <p class="text-xl mt-2.5 ml-2">| {{ request.form['sku']
+        or product['sku'] }}</p>
+      </div>
+      
+    <div class="mb-6 w-80">
+      <label
+        for="price"
+        class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >Price</label
+      >
+      <input
+        type="text"
+        name="price"
+        id="price"
+        value="{{ request.form['price']
+        or product['price'] }}"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+        required
+      />
+    </div>
+    <div class="mb-6 w-80">
+      <label
+        for="type"
+        class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >Description</label
+      >
+      <input
+        type="text"
+        name="description"
+        id="description"
+        value="{{ request.form['description']
+        or product['description'] }}"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+        required
+      />
+    </div>
+
+    <input
+      type="submit"
+      class="flex justify-center mx-auto mt-8 h-10 rounded-md bg-slate-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      value="Save Changes"
+    />
+  </div>
+
+  <div
+    class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-90rem)]"
+    aria-hidden="true"
+  >
+    <div
+      class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#5ebaff] to-[#9DB2BF] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+      style="
+        clip-path: polygon(
+          74.1% 44.1%,
+          100% 61.6%,
+          97.5% 26.9%,
+          85.5% 0.1%,
+          80.7% 2%,
+          72.5% 32.5%,
+          60.2% 62.4%,
+          52.4% 68.1%,
+          47.5% 58.3%,
+          45.2% 34.5%,
+          27.5% 76.7%,
+          0.1% 64.9%,
+          17.9% 100%,
+          27.6% 76.8%,
+          76.1% 97.7%,
+          74.1% 44.1%
+        );
+      "
+    ></div>
+  </div>
+  {% endblock %}
 </form>
-<hr />
-{% endblock %}

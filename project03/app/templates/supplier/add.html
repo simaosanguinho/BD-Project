@@ -1,27 +1,122 @@
+
+
 {% extends 'base.html' %} {% block header %}
-<h1>{% block title %}New Supplier {% endblock %}</h1>
+
+<h1
+  class="ml-4 text-3xl font-semibold leading-7 text-gray-900 mt-8 mb-3 justify-content: center"
+>
+  {% block title %}New Customer {% endblock %}
+</h1>
+
 {% endblock %} {% block content %}
-<form action="/supplier/add" method="post">
-  <div>
-    <label for="tin">TIN</label>
-    <input type="text" name="tin" id="tin" />
+
+<form
+  class="mx-24 max-w-100 flex justify-center"
+  action="/supplier/add"
+  method="post"
+  style="max-height: 45rem !important"
+>
+  <div
+    class="flex-col my-auto items-center mt-20"
+    style="max-height: 40rem !important"
+  >
+    <div class="mb-6 w-80">
+      <label class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >TIN</label
+      >
+      <input
+      type="text" name="tin" id="tin"
+        class="bg-slate-400 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
+        required
+      />
+    </div>
+    <div class="mb-6 w-80">
+      <label class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >Name</label
+      >
+      <input
+      type="text" name="name" id="name"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+        required
+      />
+    </div>
+    <div class="mb-6 w-80">
+      <label
+        type="text" name="sku" id="sku"
+        for="email"
+        class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >SKU</label
+      >
+      <input
+      type="text" name="sku" id="sku"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+        required
+      />
+    </div>
+    
+    <div class="mb-6 w-80">
+      <label
+        for="address"
+        class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >Address</label
+      >
+      <input
+        type="address"
+        name="address"
+        id="address"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+        required
+      />
+    </div>
+
+    <div class="mb-6 w-80">
+      <label
+        for="date"
+        class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >Date</label
+      >
+      <input
+      type="date" name="date" id="date"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+        required
+      />
+    </div>
+
+    <input
+      type="submit"
+      class="flex justify-center mx-auto mt-8 h-10 rounded-md bg-slate-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      value="Save"
+    />
   </div>
-  <div>
-    <label for="name">Name</label>
-    <input type="text" name="name" id="name" />
+
+  <div
+    class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-90rem)]"
+    aria-hidden="true"
+  >
+    <div
+      class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#5ebaff] to-[#9DB2BF] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+      style="
+        clip-path: polygon(
+          74.1% 44.1%,
+          100% 61.6%,
+          97.5% 26.9%,
+          85.5% 0.1%,
+          80.7% 2%,
+          72.5% 32.5%,
+          60.2% 62.4%,
+          52.4% 68.1%,
+          47.5% 58.3%,
+          45.2% 34.5%,
+          27.5% 76.7%,
+          0.1% 64.9%,
+          17.9% 100%,
+          27.6% 76.8%,
+          76.1% 97.7%,
+          74.1% 44.1%
+        );
+      "
+    ></div>
   </div>
-  <div>
-    <label for="address">address</label>
-    <input type="text" name="address" id="address" />
-  </div>
-  <div>
-    <label for="type">sku</label>
-    <input type="text" name="sku" id="sku" />
-  </div>
-  <div>
-    <label for="size">date</label>
-    <input type="text" name="date" id="date" />
-  </div>
-  <input type="submit" value="Save" />
   {% endblock %}
 </form>
+
