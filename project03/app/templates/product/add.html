@@ -1,27 +1,18 @@
-{% extends 'base.html' %} {% block header %}
-<h1>{% block title %}New Product {% endblock %}</h1>
-{% endblock %} {% block content %}
-<form action="/product/add" method="post">
-  <div>
-    <label for="sku">SKU</label>
-    <input type="text" name="sku" id="sku" />
-  </div>
-  <div>
-    <label for="name">Name</label>
-    <input type="text" name="name" id="name" />
-  </div>
-  <div>
-    <label for="price">Price</label>
-    <input type="text" name="price" id="price" />
-  </div>
-  <div>
-    <label for="type">Description</label>
-    <input type="text" name="description" id="type" />
-  </div>
-  <div>
-    <label for="size">EAN</label>
-    <input type="text" name="ean" id="size" />
-  </div>
-  <input type="submit" value="Save" />
-  {% endblock %}
-</form>
+{% extends 'base.html' %}
+
+
+{% set page_title='New Product' %}
+
+{%set form_action = '/product/add' %}
+{% set form_fields = [('sku', 'SKU', 'text'),
+                      ('name', 'Name', 'text'),
+                      ('price', 'Price', 'text'),
+                      ('description', 'Description', 'text'),
+                      ('ean', 'EAN', 'text')
+                      ]
+%}
+
+
+  {%block content%}
+  {% include 'forms.html' %}
+  {%endblock%}

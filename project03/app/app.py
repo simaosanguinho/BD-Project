@@ -177,6 +177,7 @@ def customer_add():
                             },
                         )
                     conn.commit()
+                flash(f"Successfully added customer {name}.")
                 return redirect(url_for("customer_index"))
 
         return render_template("customer/add.html")
@@ -286,8 +287,6 @@ def customer_delete(cust_no: int):
                 )
             conn.commit()
         flash(f"Deleted customer {cust_no}.")
-        log.debug(f"Deleted {cur.rowcount} rows.")
-
         return redirect(url_for("customer_index"))
     except Exception as e:
         flash(f"An error ocurred: {e}")
@@ -678,6 +677,7 @@ def product_delete(sku):
                 )
 
             conn.commit()
+        flash(f"Deleted product with SKU '{sku}'.")
         return redirect(url_for("product_index"))
 
     except Exception as e:
@@ -819,6 +819,8 @@ def supplier_delete(tin):
                 )
 
             conn.commit()
+        flash(f"Deleted supplier with TIN {tin}.")
+
         return redirect(url_for("supplier_index"))
 
     except Exception as e:
