@@ -721,6 +721,7 @@ def product_delete(sku):
                 )
 
             conn.commit()
+        flash(f"Deleted product {sku}.")
         return redirect(url_for("product_index"))
 
     except Exception as e:
@@ -862,6 +863,7 @@ def supplier_delete(tin):
                 )
 
             conn.commit()
+        flash(f"Deleted supplier {tin}.")
         return redirect(url_for("supplier_index"))
 
     except Exception as e:

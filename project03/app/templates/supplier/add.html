@@ -5,7 +5,7 @@
 <h1
   class="ml-4 text-3xl font-semibold leading-7 text-gray-900 mt-8 mb-3 justify-content: center"
 >
-  {% block title %}New Customer {% endblock %}
+  {% block title %}New Supplier {% endblock %}
 </h1>
 
 {% endblock %} {% block content %}
@@ -20,6 +20,16 @@
     class="flex-col my-auto items-center mt-20"
     style="max-height: 40rem !important"
   >
+  <div class="mb-6 w-80">
+    <label class="block justify-center mb-2 text-sm font-medium text-gray-900"
+      >Name</label
+    >
+    <input
+    type="text" name="name" id="name"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
+      required
+    />
+  </div>
     <div class="mb-6 w-80">
       <label class="block justify-center mb-2 text-sm font-medium text-gray-900"
         >TIN</label
@@ -30,16 +40,7 @@
         required
       />
     </div>
-    <div class="mb-6 w-80">
-      <label class="block justify-center mb-2 text-sm font-medium text-gray-900"
-        >Name</label
-      >
-      <input
-      type="text" name="name" id="name"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full"
-        required
-      />
-    </div>
+    
     <div class="mb-6 w-80">
       <label
         type="text" name="sku" id="sku"
