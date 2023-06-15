@@ -421,6 +421,7 @@ def order_add():
                             )
 
                     conn.commit()
+                flash(f"Added order {order_no}.")
                 return redirect(url_for("order_index"))
 
         return render_template("order/add.html", products=products)

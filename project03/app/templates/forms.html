@@ -1,0 +1,45 @@
+{% block header %}
+<div class="px-4 sm:px-0 flex justify-between">
+  <h1 class="ml-4 text-3xl font-semibold leading-7 text-gray-900 mt-8 mb-3 justify-content: center">
+    {{ page_title }}
+  </h1>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<form
+  class="mx-20 max-w-100 flex justify-between"
+  action="{{ form_action }}"
+  method="post"
+>
+  <div class="flex-col">
+  {% for field in form_fields %}
+    <div class="mb-6 w-80">
+      <label class="block justify-center mb-2 text-sm font-medium text-gray-900"
+        >{{ field[1] }}</label>
+      <input
+        id="{{ field[0] }}"
+        name="{{ field[0] }}"
+        type="{{ field[2]}}"
+        class="bg-slate-400 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block"
+        required
+      />
+    </div>
+    {% endfor %}
+
+
+    <input
+      type="submit"
+      class="mr-20 mt-8 h-10 rounded-md bg-slate-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      value="Continue"
+    />
+  </div>
+
+  {{ extraformcontent }}
+
+
+</form>
+
+
+{%endblock%}
