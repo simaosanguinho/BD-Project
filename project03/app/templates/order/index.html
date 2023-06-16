@@ -21,7 +21,7 @@
 {%- endmacro %}
 
 {% macro get_attrs(item) -%}
-  {% if item.cust_no != -1 %} 
+  {% if item.cust_no != -1 %}
     <td class="px-6 py-4">{{ item.cust_no }}</td>
     {% else %}
     <td class="px-6 py-4">Deleted Customer</td>

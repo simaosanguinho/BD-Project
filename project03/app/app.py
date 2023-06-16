@@ -69,6 +69,7 @@ def index():
 #               Customer
 # ----------------------------------------
 
+
 @app.route("/order_list/<int:cust_no>", methods=("GET",))
 def order_list(cust_no):
     """Returns a list of orders for a customer."""
@@ -100,9 +101,8 @@ def order_list(cust_no):
                 ORDER BY o.order_no ASC
                 OFFSET %(offset)s;
             """,
-                {"cust_no": cust_no,
-                 "offset": (page - 1) * ITEMS},
-            )
+                    {"cust_no": cust_no, "offset": (page - 1) * ITEMS},
+                )
                 orders = cur.fetchmany(ITEMS)
 
         return render_template(
