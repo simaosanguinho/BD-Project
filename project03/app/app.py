@@ -15,7 +15,6 @@ from math import ceil
 
 ITEMS = 15
 
-# postgres://{user}:{password}@{hostname}:{port}/{database-name}
 DATABASE_URL = "postgres://db:db@postgres/db"
 
 pool = ConnectionPool(conninfo=DATABASE_URL)
@@ -59,15 +58,9 @@ def get_pages(cur_page, nr_pages):
 
 
 @app.route("/", methods=("GET",))
-# @app.route("/accounts", methods=("GET",))
 def index():
     """WebUI homepage."""
     return render_template("index.html")
-
-
-# ----------------------------------------
-#               Customer
-# ----------------------------------------
 
 
 @app.route("/order_list/<int:cust_no>", methods=("GET",))
@@ -84,7 +77,7 @@ def order_list(cust_no):
                     SELECT COUNT(*) as count
                     FROM orders
                     WHERE cust_no = %(cust_no)s;
-                """,
+                        """,
                         {"cust_no": cust_no},
                     )
                     .fetchone()
@@ -119,7 +112,6 @@ def order_list(cust_no):
 
 
 @app.route("/customer", methods=("GET",))
-# @app.route("/accounts", methods=("GET",))
 def customer_index():
     try:
         page = request.args.get("page", type=int, default=1)
@@ -136,7 +128,6 @@ def customer_index():
                     .fetchone()
                     .count
                 )
-                log.debug(f"nr_items = {nr_items}")
 
                 nr_pages = ceil(nr_items / ITEMS)
                 if page < 1:
@@ -248,7 +239,6 @@ def customer_update(cust_no):
                 """,
                     {"cust_no": cust_no},
                 ).fetchone()
-                log.debug(f"Found {cur.rowcount} rows.")
 
         if request.method == "POST":
             email = request.form["email"]
@@ -329,7 +319,6 @@ def customer_delete(cust_no: int):
                 )
             conn.commit()
         flash(f"Deleted customer {cust_no}.")
-        log.debug(f"Deleted {cur.rowcount} rows.")
 
         return redirect(url_for("customer_index"))
     except Exception as e:
@@ -343,7 +332,6 @@ def customer_delete(cust_no: int):
 
 
 @app.route("/order", methods=("GET",))
-# @app.route("/accounts", methods=("GET",))
 def order_index():
     try:
         page = request.args.get("page", type=int, default=1)
@@ -415,8 +403,6 @@ def order_add():
                 if not product_quantity:
                     product_quantity = 0
                 product_qty.append(product_quantity)
-            log.debug("\n\n\n\n\n")
-            log.debug(product_qty)
 
             i = 0
             for product in products:
@@ -490,11 +476,6 @@ def order_pay(order_no):
                     {"order_no": order_no},
                 ).fetchone()
 
-                log.debug(order)
-                log.debug(type(order))
-
-                if not order:  # fetchone() returns None if nothing is returned
-                    raise ValueError("TODO FIXME")  # FIXME
                 cust_no = order.cust_no
                 #'Pay' order.
                 cur.execute(
@@ -657,7 +638,6 @@ def product_update(sku):
                 error = "Description is required."
 
             if error is not None:
-                log.debug(error)
                 flash(error)
             else:
                 with pool.connection() as conn:
@@ -673,8 +653,6 @@ def product_update(sku):
                         )
                     conn.commit()
                 return redirect(url_for("product_index"))
-
-        log.debug(product)
 
         return render_template("product/update.html", product=product)
 
@@ -761,7 +739,6 @@ def supplier_index():
                 OFFSET %(offset)s;
                 """,
                     {"offset": (page - 1) * ITEMS},
-                    # prepare=True,
                 )
                 suppliers = cur.fetchmany(ITEMS)
 
@@ -869,12 +846,6 @@ def supplier_delete(tin):
     except Exception as e:
         flash(f"An error ocurred: {e}")
         return redirect(url_for("supplier_index"))
-
-
-@app.route("/ping", methods=("GET",))
-def ping():
-    log.debug("ping!")
-    return jsonify({"message": "pong!", "status": "success"})
 
 
 if __name__ == "__main__":
